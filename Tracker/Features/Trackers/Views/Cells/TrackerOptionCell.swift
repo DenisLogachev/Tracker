@@ -63,7 +63,7 @@ final class TrackerOptionCell: UITableViewCell {
 
     // MARK: - Setup
     private func setup() {
-        backgroundColor = UIColor(named: "BackgroundColor")
+        backgroundColor = TrackerConstants.Colors.background
         selectionStyle = .none
         
         setupTitleLabel()
@@ -86,7 +86,7 @@ final class TrackerOptionCell: UITableViewCell {
 
     private func setupSubtitleLabel() {
         subtitleLabel.font = UIFont.systemFont(ofSize: 17)
-        subtitleLabel.textColor = UIColor(named: "SecondaryGray")
+        subtitleLabel.textColor = TrackerConstants.Colors.secondaryGray
         subtitleLabel.numberOfLines = 1
         subtitleLabel.isHidden = true
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -94,13 +94,13 @@ final class TrackerOptionCell: UITableViewCell {
 
     private func setupArrowImageView() {
         arrowImageView.image = UIImage(systemName: "chevron.right")
-        arrowImageView.tintColor = UIColor(named: "SecondaryGray")
+        arrowImageView.tintColor = TrackerConstants.Colors.secondaryGray
         arrowImageView.contentMode = .scaleAspectFit
         arrowImageView.translatesAutoresizingMaskIntoConstraints = false
     }
 
     private func setupSeparatorView() {
-        separatorView.backgroundColor = UIColor(named: "SecondaryGray")
+        separatorView.backgroundColor = TrackerConstants.Colors.secondaryGray
         separatorView.translatesAutoresizingMaskIntoConstraints = false
     }
 

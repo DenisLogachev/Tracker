@@ -135,7 +135,7 @@ final class TrackersViewController: UIViewController {
     
     // MARK: - Actions
     @objc private func plusButtonTapped() {
-        let creationVC = TrackerCreationViewController()
+        let creationVC = CreateTrackerViewController()
         creationVC.onCreateTracker = { [weak self] tracker in
             self?.presenter.addTracker(tracker)
         }

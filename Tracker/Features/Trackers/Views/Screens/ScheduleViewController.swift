@@ -20,7 +20,7 @@ final class ScheduleViewController: UIViewController {
         let label = UILabel()
         label.text = "Расписание"
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.textColor = UIColor(named: "PrimaryBlack")
+        label.textColor = TrackerConstants.Colors.primaryBlack
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -42,7 +42,7 @@ final class ScheduleViewController: UIViewController {
     private lazy var doneButton: UIButton = {
         var config = UIButton.Configuration.filled()
         config.title = "Готово"
-        config.baseBackgroundColor = UIColor(named: "PrimaryBlack")
+        config.baseBackgroundColor = TrackerConstants.Colors.primaryBlack
         config.baseForegroundColor = .white
         config.cornerStyle = .medium
         config.contentInsets = NSDirectionalEdgeInsets(top: 19, leading: 32, bottom: 19, trailing: 32)
@@ -95,31 +95,37 @@ final class ScheduleViewController: UIViewController {
 // MARK: - UITableView Delegate/DataSource
 extension ScheduleViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return daysOfWeek.count
+        daysOfWeek.count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 75
+        75
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "ScheduleCell", for: indexPath) as? ScheduleCell else {
+        guard
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ScheduleCell", for: indexPath) as? ScheduleCell,
+            let weekday = Weekday(rawValue: indexPath.row + 1)
+        else {
+            assertionFailure("Failed to dequeue ScheduleCell or invalid Weekday")
             return UITableViewCell()
         }
+        
         let day = daysOfWeek[indexPath.row]
         let showSeparator = indexPath.row < daysOfWeek.count - 1
-        let weekday = Weekday(rawValue: indexPath.row + 1)!
         let isOn = selectedWeekdays.contains(weekday)
+        
         cell.configure(with: day, isOn: isOn, showSeparator: showSeparator)
+        
         cell.onSwitchChanged = { [weak self] isOn in
             guard let self = self else { return }
-            let weekday = Weekday(rawValue: indexPath.row + 1)!
             if isOn {
                 self.selectedWeekdays.insert(weekday)
             } else {
                 self.selectedWeekdays.remove(weekday)
             }
         }
+        
         return cell
     }
 }

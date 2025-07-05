@@ -1,31 +1,23 @@
 import UIKit
 
-final class TrackerCreationViewController: UIViewController {
-    
-    // MARK: - UI Layout Constants
-    private enum Layout {
-        static let sidePadding: CGFloat = 16
-        static let fieldHeight: CGFloat = 75
-        static let optionHeight: CGFloat = 75
-        static let buttonHeight: CGFloat = 60
-    }
-    
+final class CreateTrackerViewController: UIViewController {
+
     // MARK: - UI Components
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Новая привычка"
+        label.text = Texts.screenTitle
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
-        label.textColor = UIColor(named: "PrimaryBlack")
+        label.textColor = TrackerConstants.Colors.primaryBlack
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private lazy var nameTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Введите название трекера"
+        textField.placeholder = Texts.namePlaceholder
         textField.font = UIFont.systemFont(ofSize: 17)
-        textField.backgroundColor = UIColor(named: "BackgroundColor")
+        textField.backgroundColor = TrackerConstants.Colors.background
         textField.layer.cornerRadius = 16
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: Layout.fieldHeight))
         textField.leftViewMode = .always
@@ -37,9 +29,9 @@ final class TrackerCreationViewController: UIViewController {
     
     private lazy var charLimitLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ограничение 38 символов"
+        label.text = Texts.nameLimit
         label.font = UIFont.systemFont(ofSize: 17)
-        label.textColor = UIColor(named: "DestructiveAccent")
+        label.textColor = TrackerConstants.Colors.destructiveAccent
         label.textAlignment = .center
         label.isHidden = true
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -61,13 +53,13 @@ final class TrackerCreationViewController: UIViewController {
     
     private lazy var cancelButton: UIButton = {
         var config = UIButton.Configuration.plain()
-        config.title = "Отменить"
-        config.baseForegroundColor = UIColor(named: "DestructiveAccent")
+        config.title = Texts.cancel
+        config.baseForegroundColor = TrackerConstants.Colors.destructiveAccent
         config.cornerStyle = .medium
         config.contentInsets = NSDirectionalEdgeInsets(top: 19, leading: 32, bottom: 19, trailing: 32)
         
         let button = UIButton(configuration: config)
-        button.layer.borderColor = UIColor(named: "DestructiveAccent")?.cgColor
+        button.layer.borderColor = TrackerConstants.Colors.destructiveAccent.cgColor
         button.layer.borderWidth = 1
         button.layer.cornerRadius = 16
         button.clipsToBounds = true
@@ -78,7 +70,7 @@ final class TrackerCreationViewController: UIViewController {
     }()
     
     private lazy var saveButton: UIButton = {
-        let button = UIButton(configuration: .filledDisabled(title: "Создать"))
+        let button = UIButton(configuration: .filledDisabled(title: Texts.create))
         button.layer.cornerRadius = 16
         button.clipsToBounds = true
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
@@ -111,6 +103,7 @@ final class TrackerCreationViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
+        setupKeyboardDismissGesture()
     }
     
     // MARK: - UI Setup
@@ -167,11 +160,15 @@ final class TrackerCreationViewController: UIViewController {
         dismiss(animated: true)
     }
     
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
     private func updateSaveButtonState() {
         let isValid = (!settings.name.isEmpty && !settings.schedule.isEmpty)
         saveButton.configuration = isValid
-        ? .filledPrimary(title: "Создать")
-        : .filledDisabled(title: "Создать")
+        ? .filledPrimary(title: Texts.create)
+        : .filledDisabled(title: Texts.create)
         saveButton.isUserInteractionEnabled = isValid
     }
     
@@ -201,6 +198,12 @@ final class TrackerCreationViewController: UIViewController {
     private func presentCategory() {
         // TODO
     }
+    
+    private func setupKeyboardDismissGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
 }
 
 // MARK: - UIButton.Configuration Extensions
@@ -208,7 +211,7 @@ private extension UIButton.Configuration {
     static func filledPrimary(title: String) -> UIButton.Configuration {
         var config = UIButton.Configuration.filled()
         config.title = title
-        config.baseBackgroundColor = UIColor(named: "PrimaryBlack")
+        config.baseBackgroundColor = TrackerConstants.Colors.primaryBlack
         config.baseForegroundColor = .white
         config.cornerStyle = .medium
         config.contentInsets = NSDirectionalEdgeInsets(top: 19, leading: 32, bottom: 19, trailing: 32)
@@ -218,7 +221,7 @@ private extension UIButton.Configuration {
     static func filledDisabled(title: String) -> UIButton.Configuration {
         var config = UIButton.Configuration.filled()
         config.title = title
-        config.baseBackgroundColor = UIColor(named: "SecondaryGray")
+        config.baseBackgroundColor = TrackerConstants.Colors.secondaryGray
         config.baseForegroundColor = .white
         config.cornerStyle = .medium
         config.contentInsets = NSDirectionalEdgeInsets(top: 19, leading: 32, bottom: 19, trailing: 32)
@@ -227,7 +230,7 @@ private extension UIButton.Configuration {
 }
 
 // MARK: - UITextFieldDelegate
-extension TrackerCreationViewController: UITextFieldDelegate {
+extension CreateTrackerViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let currentText = textField.text ?? ""
         guard let stringRange = Range(range, in: currentText) else { return false }
@@ -235,10 +238,14 @@ extension TrackerCreationViewController: UITextFieldDelegate {
         charLimitLabel.isHidden = updatedText.count <= 38
         return updatedText.count <= 38
     }
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
 }
 
 // MARK: - UITableViewDelegate & DataSource
-extension TrackerCreationViewController: UITableViewDelegate, UITableViewDataSource {
+extension CreateTrackerViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return OptionType.allCases.count
     }
@@ -260,7 +267,7 @@ extension TrackerCreationViewController: UITableViewDelegate, UITableViewDataSou
             if settings.schedule.isEmpty {
                 subtitle = option.defaultSubtitle
             } else if settings.schedule.count == Weekday.allCases.count {
-                subtitle = "Каждый день"
+                subtitle = Texts.createEveryDay
             } else {
                 subtitle = settings.schedule.map { $0.localizedShortName }.joined(separator: ", ")
             }
@@ -278,5 +285,23 @@ extension TrackerCreationViewController: UITableViewDelegate, UITableViewDataSou
             presentSchedule()
         }
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
+private extension CreateTrackerViewController {
+    enum Layout {
+        static let sidePadding: CGFloat = 16
+        static let fieldHeight: CGFloat = 75
+        static let optionHeight: CGFloat = 75
+        static let buttonHeight: CGFloat = 60
+    }
+
+    enum Texts {
+        static let screenTitle = "Новая привычка"
+        static let namePlaceholder = "Введите название трекера"
+        static let nameLimit = "Ограничение 38 символов"
+        static let cancel = "Отменить"
+        static let create = "Создать"
+        static let createEveryDay = "Каждый день"
     }
 }

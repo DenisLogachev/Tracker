@@ -32,7 +32,7 @@ final class TrackerCell: UICollectionViewCell {
     private let countLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = UIColor(named: "PrimaryBlack") ?? .black
+        label.textColor = TrackerConstants.Colors.primaryBlack
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -50,7 +50,7 @@ final class TrackerCell: UICollectionViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = UIConstants.cardCornerRadius
         view.layer.borderWidth = 1
-        view.layer.borderColor = (UIColor(named: "SecondaryGray") ?? .gray).withAlphaComponent(0.3).cgColor
+        view.layer.borderColor = TrackerConstants.Colors.secondaryGray.withAlphaComponent(0.3).cgColor
         view.clipsToBounds = true
         return view
     }()
