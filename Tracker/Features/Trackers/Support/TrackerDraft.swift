@@ -2,14 +2,14 @@ import UIKit
 
 struct TrackerSettings {
     var name:  String = ""
-    var category: String = ""
+    var category: TrackerCategory?
     var schedule: [Weekday] = []
     var emoji: String?
     var color: UIColor?
     
     var isComplete: Bool {
         !name.isEmpty &&
-        !category.isEmpty &&
+        category != nil &&
         !schedule.isEmpty &&
         emoji != nil &&
         color != nil
@@ -17,8 +17,9 @@ struct TrackerSettings {
     
     func buildTracker() -> Tracker? {
         guard isComplete,
-              let emoji = emoji,
-              let color = color
+              let emoji,
+              let color,
+              let category
         else {
             return nil
         }

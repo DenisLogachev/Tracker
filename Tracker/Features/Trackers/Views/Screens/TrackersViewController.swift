@@ -4,7 +4,7 @@ final class TrackersViewController: UIViewController {
     
     // MARK: - Properties
     private var presenter: TrackersPresenter!
-    private var categorizedTrackers: [TrackerCategory] = []
+    private var categorizedTrackers: [TrackerCategoryViewModel] = []
     
     // MARK: - UI Components
     private lazy var datePicker: UIDatePicker = {
@@ -163,7 +163,7 @@ final class TrackersViewController: UIViewController {
         datePicker.date = date
     }
     
-    func showCategorizedTrackers(_ categories: [TrackerCategory]) {
+    func showCategorizedTrackers(_ categories: [TrackerCategoryViewModel]) {
         self.categorizedTrackers = categories
         DispatchQueue.main.async {
             self.trackersCollectionView.reloadData()
