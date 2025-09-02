@@ -2,34 +2,37 @@ import Foundation
 
 final class TrackerService: TrackerServiceProtocol {
     
-    private var trackerRecords: [TrackerRecord] = []
-    private var trackers: [Tracker] = []
+    private let trackerStore: TrackerStore
+    private let recordStore: TrackerRecordStore
+    
+    init(trackerStore: TrackerStore = TrackerStore(),
+         recordStore: TrackerRecordStore = TrackerRecordStore()) {
+        self.trackerStore = trackerStore
+        self.recordStore = recordStore
+    }
     
     func fetchAllTrackers() -> [Tracker] {
-        return trackers
+        return trackerStore.fetchAll()
     }
     
     func completedDays(for tracker: Tracker) -> Int {
-        trackerRecords.filter { $0.id == tracker.id }.count
+        return recordStore.fetchRecords(for: tracker).count
     }
     
     func isCompleted(on date: Date, tracker: Tracker) -> Bool {
-        trackerRecords.contains { $0.id == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: date) }
+        return recordStore.fetchRecords(for: tracker)
+            .contains { Calendar.current.isDate($0.date, inSameDayAs: date) }
     }
     
     func addTracker(_ tracker: Tracker) {
-        trackers.append(tracker)
+        trackerStore.add(tracker)
     }
     
     func addRecord(for tracker: Tracker, on date: Date) {
-        let record = TrackerRecord(id: tracker.id, date: date)
-        trackerRecords.append(record)
+        recordStore.addRecord(for: tracker, on: date)
     }
-    
+
     func removeRecord(for tracker: Tracker, on date: Date) {
-        trackerRecords.removeAll { record in
-            record.id == tracker.id && Calendar.current.isDate(record.date, inSameDayAs: date)
-        }
+        recordStore.deleteRecord(for: tracker, on: date)
     }
 }
-

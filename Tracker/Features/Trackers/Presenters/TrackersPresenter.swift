@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 final class TrackersPresenter {
     
@@ -24,19 +24,15 @@ final class TrackersPresenter {
     }
     
     func trackerButtonTapped(trackerId: UUID) {
-        guard let tracker = allTrackers.first(where: { $0.id == trackerId }) else {
-            return
-        }
-        guard currentDate <= Date() else {
-            return
-        }
+        guard let tracker = allTrackers.first(where: { $0.id == trackerId }),
+              currentDate <= Date() else { return }
         
         if trackerService.isCompleted(on: currentDate, tracker: tracker) {
             trackerService.removeRecord(for: tracker, on: currentDate)
         } else {
             trackerService.addRecord(for: tracker, on: currentDate)
         }
-
+        
         filterTrackers(for: currentDate)
     }
     
@@ -63,14 +59,12 @@ final class TrackersPresenter {
         viewController?.updatePlaceholderVisibility(isEmpty: categorizedTrackers.isEmpty)
     }
     
-    private func groupTrackersByCategory(_ trackers: [TrackerCellViewModel]) -> [TrackerCategory] {
+    private func groupTrackersByCategory(_ trackers: [TrackerCellViewModel]) -> [TrackerCategoryViewModel] {
         var categoryDict: [String: [TrackerCellViewModel]] = [:]
         
         for trackerViewModel in trackers {
-            guard let originalTracker = allTrackers.first(where: { $0.id == trackerViewModel.id }) else {
-                continue
-            }
-            let categoryName = originalTracker.category.isEmpty ? "Важное" : originalTracker.category
+            guard let originalTracker = allTrackers.first(where: { $0.id == trackerViewModel.id }) else { continue }
+            let categoryName = originalTracker.category.title.isEmpty ? "Важное" : originalTracker.category.title
             
             if categoryDict[categoryName] == nil {
                 categoryDict[categoryName] = []
@@ -82,11 +76,8 @@ final class TrackersPresenter {
             categoryDict["Важное"] = trackers
         }
         
-        let categories = categoryDict.compactMap { (categoryName, trackers) in
-            TrackerCategory(title: categoryName, trackers: trackers)
-        }
-        
-        return categories.sorted { $0.title < $1.title }
+        return categoryDict.map { TrackerCategoryViewModel(title: $0.key, trackers: $0.value) }
+            .sorted { $0.title < $1.title }
     }
     
     func addTracker(_ tracker: Tracker) {

@@ -1,6 +1,7 @@
 import Foundation
 
 struct TrackerCategory {
+    let id: UUID
     let title: String
-    let trackers: [TrackerCellViewModel]
+    let trackers: [Tracker]
 }
