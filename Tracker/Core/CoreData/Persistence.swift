@@ -13,8 +13,7 @@ final class Persistence {
         return container
     }()
     
-    var context: NSManagedObjectContext {
-        return persistentContainer.viewContext
+    var context: NSManagedObjectContext { persistentContainer.viewContext
     }
     
     func saveContext () {
@@ -24,7 +23,7 @@ final class Persistence {
                 try context.save()
             } catch {
                 let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+                assertionFailure("Unresolved error \(nserror), \(nserror.userInfo)")
             }
         }
     }

@@ -21,7 +21,9 @@ final class EmojiCell: UICollectionViewCell {
         contentView.layer.cornerRadius = 16
     }
     
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    required init?(coder: NSCoder) {
+        assertionFailure("init(coder:) has not been implemented")
+        return nil}
     
     func configure(with emoji: String, isSelected: Bool) {
         emojiLabel.text = emoji

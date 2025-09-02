@@ -24,7 +24,9 @@ final class ColorCell: UICollectionViewCell {
         ])
     }
     
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    required init?(coder: NSCoder) {
+        assertionFailure("init(coder:) has not been implemented")
+        return nil}
     
     func configure(with color: UIColor, isSelected: Bool) {
         colorView.backgroundColor = color

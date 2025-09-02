@@ -24,8 +24,8 @@ final class TrackersPresenter {
     }
     
     func trackerButtonTapped(trackerId: UUID) {
-        guard let tracker = allTrackers.first(where: { $0.id == trackerId }) else { return }
-        guard currentDate <= Date() else { return }
+        guard let tracker = allTrackers.first(where: { $0.id == trackerId }),
+              currentDate <= Date() else { return }
         
         if trackerService.isCompleted(on: currentDate, tracker: tracker) {
             trackerService.removeRecord(for: tracker, on: currentDate)

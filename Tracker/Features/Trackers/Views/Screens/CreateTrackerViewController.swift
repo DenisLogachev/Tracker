@@ -142,9 +142,7 @@ final class CreateTrackerViewController: UIViewController {
     
     // MARK: - State
     private var settings: TrackerSettings = {
-        var s = TrackerSettings()
-        s.setRandomColorAndEmoji()
-        return s
+        TrackerSettings().withRandomColorAndEmoji()
     }()
     
     var onCreateTracker: ((Tracker) -> Void)?
@@ -159,7 +157,7 @@ final class CreateTrackerViewController: UIViewController {
         setupUI()
         setupKeyboardDismissGesture()
         let store = TrackerCategoryStore(useFRC: false)
-        settings.category = store.ensureDefaultCategory()
+        settings = settings.withCategory(store.ensureDefaultCategory())
         optionsTableView.reloadData()
         updateSaveButtonState()
     }
@@ -232,7 +230,7 @@ final class CreateTrackerViewController: UIViewController {
     
     @objc private func nameChanged(_ sender: UITextField) {
         let text = sender.text ?? ""
-        settings.name = text
+        settings = settings.withName(text)
         charLimitLabel.isHidden = text.count <= Layout.nameMaxLength
         updateSaveButtonState()
     }
@@ -280,7 +278,7 @@ final class CreateTrackerViewController: UIViewController {
         scheduleVC.selectedWeekdays = Set(settings.schedule)
         scheduleVC.onWeekdaysSelected = { [weak self] selected in
             guard let self = self else { return }
-            self.settings.schedule = selected.sorted { $0.rawValue < $1.rawValue }
+            self.settings = self.settings.withSchedule(selected.sorted { $0.rawValue < $1.rawValue })
             self.optionsTableView.reloadData()
             self.updateSaveButtonState()
         }
@@ -406,11 +404,11 @@ extension CreateTrackerViewController: UICollectionViewDelegate, UICollectionVie
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == emojiCollectionView {
             selectedEmojiIndex = indexPath
-            settings.emoji = TrackerConstants.availableEmojis[indexPath.row]
+            settings = settings.withEmoji(TrackerConstants.availableEmojis[indexPath.row])
             collectionView.reloadData()
         } else {
             selectedColorIndex = indexPath
-            settings.color = TrackerConstants.availableColors[indexPath.row]
+            settings = settings.withColor(TrackerConstants.availableColors[indexPath.row])
             collectionView.reloadData()
         }
     }
@@ -428,11 +426,7 @@ extension CreateTrackerViewController: UICollectionViewDelegate, UICollectionVie
             for: indexPath
         ) as! CategoryHeaderView
         
-        if collectionView == emojiCollectionView {
-            header.title = "Emoji"
-        } else {
-            header.title = "Цвет"
-        }
+        header.title = collectionView == emojiCollectionView ? "Emoji" : "Цвет"
         return header
     }
 }
