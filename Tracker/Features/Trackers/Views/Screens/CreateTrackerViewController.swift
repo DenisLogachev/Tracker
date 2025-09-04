@@ -2,6 +2,9 @@ import UIKit
 
 final class CreateTrackerViewController: UIViewController {
     
+    // MARK: - ViewModel
+    private let viewModel = CreateTrackerViewModel()
+    
     // MARK: - UI Components
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -140,15 +143,8 @@ final class CreateTrackerViewController: UIViewController {
         return v
     }()
     
-    // MARK: - State
-    private var settings: TrackerSettings = {
-        TrackerSettings().withRandomColorAndEmoji()
-    }()
-    
+    // MARK: - Output
     var onCreateTracker: ((Tracker) -> Void)?
-    
-    private var selectedEmojiIndex: IndexPath?
-    private var selectedColorIndex: IndexPath?
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -156,10 +152,34 @@ final class CreateTrackerViewController: UIViewController {
         view.backgroundColor = .white
         setupUI()
         setupKeyboardDismissGesture()
-        let store = TrackerCategoryStore(useFRC: false)
-        settings = settings.withCategory(store.ensureDefaultCategory())
-        optionsTableView.reloadData()
-        updateSaveButtonState()
+        bindViewModel()
+        viewModel.viewDidLoad()
+    }
+    
+    private func bindViewModel() {
+        viewModel.onNameLimitExceededChanged = { [weak self] exceeded in
+            self?.charLimitLabel.isHidden = !exceeded
+        }
+        viewModel.onSaveEnabledChanged = { [weak self] enabled in
+            self?.saveButton.configuration = enabled ? .filledPrimary(title: Texts.create) : .filledDisabled(title: Texts.create)
+            self?.saveButton.isUserInteractionEnabled = enabled
+        }
+        viewModel.onCategorySubtitleChanged = { [weak self] _ in
+            self?.optionsTableView.reloadData()
+        }
+        viewModel.onScheduleSubtitleChanged = { [weak self] _ in
+            self?.optionsTableView.reloadData()
+        }
+        viewModel.onEmojiSelectionChanged = { [weak self] _ in
+            self?.emojiCollectionView.reloadData()
+        }
+        viewModel.onColorSelectionChanged = { [weak self] _ in
+            self?.colorCollectionView.reloadData()
+        }
+        viewModel.onTrackerCreated = { [weak self] tracker in
+            self?.onCreateTracker?(tracker)
+            self?.dismiss(animated: true)
+        }
     }
     
     // MARK: - UI Setup
@@ -230,63 +250,36 @@ final class CreateTrackerViewController: UIViewController {
     
     @objc private func nameChanged(_ sender: UITextField) {
         let text = sender.text ?? ""
-        settings = settings.withName(text)
-        charLimitLabel.isHidden = text.count <= Layout.nameMaxLength
-        updateSaveButtonState()
+        viewModel.updateName(text)
     }
     
     @objc private func saveTapped() {
-        guard saveButton.isUserInteractionEnabled else { return }
-        guard let tracker = createTracker() else { return }
-        onCreateTracker?(tracker)
-        dismiss(animated: true)
+        viewModel.createTrackerIfValid()
     }
     
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
     
-    private func updateSaveButtonState() {
-        let isValid = (!settings.name.isEmpty && !settings.schedule.isEmpty && settings.category != nil)
-        saveButton.configuration = isValid
-        ? .filledPrimary(title: Texts.create)
-        : .filledDisabled(title: Texts.create)
-        saveButton.isUserInteractionEnabled = isValid
-    }
-    
-    private func createTracker() -> Tracker? {
-        guard
-            !settings.name.isEmpty,
-            !settings.schedule.isEmpty,
-            let category = settings.category
-        else {
-            return nil
-        }
-        
-        return Tracker(
-            id: UUID(),
-            name: settings.name,
-            color: settings.color ?? .systemGreen,
-            emoji: settings.emoji ?? "😪",
-            schedule: settings.schedule,
-            category: category
-        )
-    }
+    // remove obsolete local state methods (moved to viewModel)
     
     private func presentSchedule() {
         let scheduleVC = ScheduleViewController()
-        scheduleVC.selectedWeekdays = Set(settings.schedule)
+        scheduleVC.selectedWeekdays = Set(viewModel.settings.schedule)
         scheduleVC.onWeekdaysSelected = { [weak self] selected in
-            guard let self = self else { return }
-            self.settings = self.settings.withSchedule(selected.sorted { $0.rawValue < $1.rawValue })
-            self.optionsTableView.reloadData()
-            self.updateSaveButtonState()
+            self?.viewModel.applySelectedWeekdays(selected)
         }
         present(scheduleVC, animated: true)
     }
     
     private func presentCategory() {
-        // TODO
+        let vm = CategoryListViewModel()
+        let vc = CategoryListViewController(viewModel: vm)
+        vc.preselect(category: viewModel.settings.category)
+        vc.onCategorySelected = { [weak self] category in
+            self?.viewModel.applySelectedCategory(category)
+        }
+        present(vc, animated: true)
     }
     
     private func setupKeyboardDismissGesture() {
@@ -349,23 +342,14 @@ extension CreateTrackerViewController: UITableViewDelegate, UITableViewDataSourc
             return UITableViewCell()
         }
         let option = OptionType.allCases[indexPath.row]
-        var subtitle: String? = nil
-        switch option {
-        case .category:
-            if let category = settings.category {
-                subtitle = category.title.isEmpty ? option.defaultSubtitle : category.title
-            } else {
-                subtitle = option.defaultSubtitle
+        let subtitle: String? = {
+            switch option {
+            case .category:
+                return viewModel.categorySubtitle
+            case .schedule:
+                return viewModel.scheduleSubtitle
             }
-        case .schedule:
-            if settings.schedule.isEmpty {
-                subtitle = option.defaultSubtitle
-            } else if settings.schedule.count == Weekday.allCases.count {
-                subtitle = Texts.createEveryDay
-            } else {
-                subtitle = settings.schedule.map { $0.localizedShortName }.joined(separator: ", ")
-            }
-        }
+        }()
         cell.configure(with: option.title, subtitle: subtitle, showSeparator: option.showsSeparator)
         return cell
     }
@@ -391,25 +375,21 @@ extension CreateTrackerViewController: UICollectionViewDelegate, UICollectionVie
         if collectionView == emojiCollectionView {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EmojiCell.reuseIdentifier, for: indexPath) as? EmojiCell else { return UICollectionViewCell() }
             let emoji = TrackerConstants.availableEmojis[indexPath.row]
-            cell.configure(with: emoji, isSelected: selectedEmojiIndex == indexPath)
+            cell.configure(with: emoji, isSelected: viewModel.selectedEmojiIndex == indexPath)
             return cell
         } else {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ColorCell.reuseIdentifier, for: indexPath) as? ColorCell else { return UICollectionViewCell() }
             let color = TrackerConstants.availableColors[indexPath.row]
-            cell.configure(with: color, isSelected: selectedColorIndex == indexPath)
+            cell.configure(with: color, isSelected: viewModel.selectedColorIndex == indexPath)
             return cell
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == emojiCollectionView {
-            selectedEmojiIndex = indexPath
-            settings = settings.withEmoji(TrackerConstants.availableEmojis[indexPath.row])
-            collectionView.reloadData()
+            viewModel.selectEmoji(at: indexPath)
         } else {
-            selectedColorIndex = indexPath
-            settings = settings.withColor(TrackerConstants.availableColors[indexPath.row])
-            collectionView.reloadData()
+            viewModel.selectColor(at: indexPath)
         }
     }
     
