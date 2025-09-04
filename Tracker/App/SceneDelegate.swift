@@ -5,11 +5,29 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
-        let tabBarController = TabBarController()
-        window.rootViewController = tabBarController
+        let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
+        if hasSeenOnboarding {
+            window.rootViewController = TabBarController()
+        } else {
+            let onboarding = OnboardingPageViewController.demo()
+            onboarding.onFinish = { [weak self] in
+                UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+                if let window = self?.window {
+                    UIView.transition(
+                        with: window,
+                        duration: 0.3,
+                        options: .transitionCrossDissolve,
+                        animations: {
+                            window.rootViewController = TabBarController()
+                        })
+                }
+            }
+            window.rootViewController = onboarding
+        }
         self.window = window
         window.makeKeyAndVisible()
     }
+    
     
     func sceneDidDisconnect(_ scene: UIScene) {}
     
@@ -23,4 +41,3 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         Persistence.shared.saveContext()
     }
 }
-

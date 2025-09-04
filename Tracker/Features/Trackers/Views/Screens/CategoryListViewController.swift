@@ -27,7 +27,7 @@ final class CategoryListViewController: UIViewController {
     
     private lazy var doneButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Готово"
+        config.title = "Добавить категорию"
         config.baseBackgroundColor = TrackerConstants.Colors.primaryBlack
         config.baseForegroundColor = .white
         config.cornerStyle = .medium
