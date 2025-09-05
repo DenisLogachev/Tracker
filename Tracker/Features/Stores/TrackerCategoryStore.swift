@@ -32,12 +32,33 @@ final class TrackerCategoryStore: NSObject {
     }
     
     func ensureDefaultCategory() -> TrackerCategory {
-        if let existing = fetchCategory(byTitle: "Важное")?.toCategory() {
+        if let existing = fetchCategory(byTitle: TrackerConstants.Strings.importantCategoryTitle)?.toCategory() {
             return existing
         }
-        let category = TrackerCategory(id: UUID(), title: "Важное", trackers: [])
+        let category = TrackerCategory(id: UUID(), title: TrackerConstants.Strings.importantCategoryTitle, trackers: [])
         add(category)
         return fetchCategory(by: category.id)?.toCategory() ?? category
+    }
+    
+    func ensureDefaultCategoriesIfNeeded() {
+        let key = "tracker_default_categories_seeded_v1"
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: key) else { return }
+        let defaultTitles = [
+            TrackerConstants.Strings.importantCategoryTitle,
+            "Радостные мелочи",
+            "Самочувствие",
+            "Привычки",
+            "Внимательность",
+            "Спорт"
+        ]
+        defaultTitles.forEach { title in
+            if fetchCategory(byTitle: title) == nil {
+                let category = TrackerCategory(id: UUID(), title: title, trackers: [])
+                add(category)
+            }
+        }
+        defaults.set(true, forKey: key)
     }
     
     func add(_ category: TrackerCategory) {
@@ -55,6 +76,12 @@ final class TrackerCategoryStore: NSObject {
             context.delete(result)
             save()
         }
+    }
+    
+    func updateTitle(for id: UUID, to newTitle: String) {
+        guard let object = fetchCategory(by: id) else { return }
+        object.title = newTitle
+        save()
     }
     
     private func fetchCategory(by id: UUID) -> TrackerCategoryCoreData? {

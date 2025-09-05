@@ -2,6 +2,8 @@ import UIKit
 
 final class ScheduleViewController: UIViewController {
     
+    private let viewModel = ScheduleViewModel()
+    
     private let daysOfWeek = [
         "Понедельник",
         "Вторник",
@@ -61,6 +63,17 @@ final class ScheduleViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor =  .white
         setupUI()
+        bindViewModel()
+        viewModel.setInitial(selectedWeekdays)
+    }
+    private func bindViewModel() {
+        viewModel.onWeekdaysChanged = { [weak self] _ in
+            self?.tableView.reloadData()
+        }
+        viewModel.onDone = { [weak self] selected in
+            self?.onWeekdaysSelected?(selected)
+            self?.dismiss(animated: true)
+        }
     }
     
     // MARK: - Setup
@@ -87,8 +100,7 @@ final class ScheduleViewController: UIViewController {
     
     // MARK: - Actions
     @objc private func doneTapped() {
-        onWeekdaysSelected?(selectedWeekdays)
-        dismiss(animated: true)
+        viewModel.done()
     }
 }
 
@@ -113,17 +125,12 @@ extension ScheduleViewController: UITableViewDelegate, UITableViewDataSource {
         
         let day = daysOfWeek[indexPath.row]
         let showSeparator = indexPath.row < daysOfWeek.count - 1
-        let isOn = selectedWeekdays.contains(weekday)
+        let isOn = viewModel.selectedWeekdays.contains(weekday)
         
         cell.configure(with: day, isOn: isOn, showSeparator: showSeparator)
         
         cell.onSwitchChanged = { [weak self] isOn in
-            guard let self = self else { return }
-            if isOn {
-                self.selectedWeekdays.insert(weekday)
-            } else {
-                self.selectedWeekdays.remove(weekday)
-            }
+            self?.viewModel.toggle(weekday, isOn: isOn)
         }
         
         return cell

@@ -2,8 +2,25 @@ import UIKit
 
 final class TrackersViewController: UIViewController {
     
+    private let viewModel: TrackersViewModel
+    private let trackerService: TrackerService
+    
+    // MARK: - Init
+    init (viewModel:TrackersViewModel, trackerService:TrackerService) {
+        self.viewModel = viewModel
+        self.trackerService = trackerService
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        self.trackerService = TrackerService()
+        self.viewModel = TrackersViewModel(trackerService: self.trackerService)
+        super.init(coder:coder)
+        assertionFailure("Dependencies not provided")
+    }
+    
+    
     // MARK: - Properties
-    private var presenter: TrackersPresenter!
     private var categorizedTrackers: [TrackerCategoryViewModel] = []
     
     // MARK: - UI Components
@@ -68,16 +85,23 @@ final class TrackersViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupPresenter()
+        bindViewModel()
         setupNavigationBar()
         configureUI()
-        presenter.loadTrackers()
+        viewModel.load()
     }
     
     // MARK: - Setup
-    private func setupPresenter() {
-        let trackerService = TrackerService()
-        presenter = TrackersPresenter(viewController: self, trackerService: trackerService)
+    private func bindViewModel() {
+        viewModel.onCategorizedTrackersChanged = { [weak self] categories in
+            self?.showCategorizedTrackers(categories)
+        }
+        viewModel.onPlaceholderVisibilityChanged = { [weak self] isEmpty in
+            self?.updatePlaceholderVisibility(isEmpty: isEmpty)
+        }
+        viewModel.onDateChanged = { [weak self] date in
+            self?.updateDate(to: date)
+        }
     }
     
     private func setupNavigationBar() {
@@ -137,20 +161,20 @@ final class TrackersViewController: UIViewController {
     @objc private func plusButtonTapped() {
         let creationVC = CreateTrackerViewController()
         creationVC.onCreateTracker = { [weak self] tracker in
-            self?.presenter.addTracker(tracker)
+            self?.viewModel.addTracker(tracker)
         }
         creationVC.modalPresentationStyle = .pageSheet
         present(creationVC, animated: true)
     }
     
     @objc private func dateChanged(_ sender: UIDatePicker) {
-        presenter.dateDidChange(to: sender.date)
+        viewModel.changeDate(to: sender.date)
     }
     
     // MARK: - Private Methods
     private func handleTrackerAction(at indexPath: IndexPath) {
         let trackerViewModel = categorizedTrackers[indexPath.section].trackers[indexPath.item]
-        presenter.trackerButtonTapped(trackerId: trackerViewModel.id)
+        viewModel.toggleTracker(withId: trackerViewModel.id)
     }
     
     // MARK: - Public Methods
