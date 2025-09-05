@@ -6,7 +6,7 @@ struct OnboardingPage {
     let showsActionButton: Bool
     let actionTitle: String?
 
-    init(image: UIImage?, titleText: String, subtitleText: String?, showsActionButton: Bool, actionTitle: String?, isAdvanceAction: Bool = true) {
+    init(image: UIImage?, titleText: String, showsActionButton: Bool, actionTitle: String?, isAdvanceAction: Bool = true) {
         self.image = image
         self.titleText = titleText
         self.showsActionButton = showsActionButton

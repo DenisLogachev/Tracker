@@ -8,7 +8,9 @@ final class TabBarController: UITabBarController {
     }
     
     private func configureTabBar() {
-        let trackersVC = TrackersViewController()
+        let trackerService = TrackerService()
+        let trackersViewModel = TrackersViewModel(trackerService: trackerService)
+        let trackersVC = TrackersViewController(viewModel: trackersViewModel, trackerService: trackerService)
         let statisticsVC = StatisticsViewController()
         
         trackersVC.tabBarItem = UITabBarItem(

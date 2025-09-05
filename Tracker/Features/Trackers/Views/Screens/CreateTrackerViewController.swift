@@ -3,7 +3,19 @@ import UIKit
 final class CreateTrackerViewController: UIViewController {
     
     // MARK: - ViewModel
-    private let viewModel = CreateTrackerViewModel()
+    private let viewModel: CreateTrackerViewModel
+    
+    // MARK: - Init
+    init (viewModel:CreateTrackerViewModel = CreateTrackerViewModel()) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        self.viewModel = CreateTrackerViewModel()
+        super.init(coder:coder)
+        assertionFailure("ViewModel was not provided")
+    }
     
     // MARK: - UI Components
     private lazy var titleLabel: UILabel = {

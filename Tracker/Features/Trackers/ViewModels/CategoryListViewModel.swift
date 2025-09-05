@@ -62,9 +62,11 @@ final class CategoryListViewModel {
         guard let category = categories.first(where: { $0.id == id }) else { return }
         let trimmed = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        guard category.title != reservedCategoryTitle else { return }
-        guard !trimmed.isEmpty else { return }
-        guard trimmed != reservedCategoryTitle else { return }
+        guard
+            category.title != reservedCategoryTitle,
+            !trimmed.isEmpty,
+            trimmed != reservedCategoryTitle
+        else { return }
         
         store.updateTitle(for: id, to: trimmed)
     }

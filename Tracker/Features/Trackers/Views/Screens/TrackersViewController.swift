@@ -2,8 +2,25 @@ import UIKit
 
 final class TrackersViewController: UIViewController {
     
+    private let viewModel: TrackersViewModel
+    private let trackerService: TrackerService
+    
+    // MARK: - Init
+    init (viewModel:TrackersViewModel, trackerService:TrackerService) {
+        self.viewModel = viewModel
+        self.trackerService = trackerService
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        self.trackerService = TrackerService()
+        self.viewModel = TrackersViewModel(trackerService: self.trackerService)
+        super.init(coder:coder)
+        assertionFailure("Dependencies not provided")
+    }
+    
+    
     // MARK: - Properties
-    private var viewModel: TrackersViewModel!
     private var categorizedTrackers: [TrackerCategoryViewModel] = []
     
     // MARK: - UI Components
@@ -68,19 +85,13 @@ final class TrackersViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupViewModel()
+        bindViewModel()
         setupNavigationBar()
         configureUI()
         viewModel.load()
     }
     
     // MARK: - Setup
-    private func setupViewModel() {
-        let trackerService = TrackerService()
-        viewModel = TrackersViewModel(trackerService: trackerService)
-        bindViewModel()
-    }
-    
     private func bindViewModel() {
         viewModel.onCategorizedTrackersChanged = { [weak self] categories in
             self?.showCategorizedTrackers(categories)

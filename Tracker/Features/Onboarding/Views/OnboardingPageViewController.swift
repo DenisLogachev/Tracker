@@ -71,19 +71,13 @@ extension OnboardingPageViewController: UIPageViewControllerDataSource {
     func pageViewController(_ pageViewController: UIPageViewController,
                             viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let index = viewControllersCache.firstIndex(of: viewController) else { return nil }
-        if index == 0 {
-            return viewControllersCache.last
-        }
-        return viewControllersCache[index - 1]
+        return index == 0 ? viewControllersCache.last : viewControllersCache[index - 1]
     }
     
     func pageViewController(_ pageViewController: UIPageViewController,
                             viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let index = viewControllersCache.firstIndex(of: viewController) else { return nil }
-        if index == viewControllersCache.count - 1 {
-            return viewControllersCache.first
-        }
-        return viewControllersCache[index + 1]
+        return index == viewControllersCache.count - 1 ? viewControllersCache.first: viewControllersCache[index + 1]
     }
 }
 
@@ -105,8 +99,14 @@ extension OnboardingPageViewController: UIPageViewControllerDelegate {
 extension OnboardingPageViewController {
     static func demo() -> OnboardingPageViewController {
         let samplePages: [OnboardingPage] = [
-            OnboardingPage(image: UIImage(named: "onbording1"), titleText: "Отслеживайте только то, что хотите", subtitleText: nil, showsActionButton: true, actionTitle: "Вот это технологии!"),
-            OnboardingPage(image: UIImage(named: "onbording2"), titleText: "Даже если это  не литры воды и йога", subtitleText: nil, showsActionButton: true, actionTitle: "Вот это технологии!")
+            OnboardingPage(
+                image: UIImage(resource: .onboarding1),
+                titleText: "Отслеживайте только то, что хотите",
+                showsActionButton: true,
+                actionTitle: "Вот это технологии!"),
+            OnboardingPage(image: UIImage(resource: .onboarding2),
+                           titleText: "Даже если это не литры воды и йога",
+                           showsActionButton: true, actionTitle: "Вот это технологии!")
         ]
         return OnboardingPageViewController(pages: samplePages)
     }
