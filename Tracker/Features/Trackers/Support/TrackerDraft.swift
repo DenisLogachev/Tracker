@@ -6,13 +6,15 @@ struct TrackerSettings {
     let schedule: [Weekday]
     let emoji: String?
     let color: UIColor?
+    let isPinned: Bool
     
     init(
         name:  String = "",
         category: TrackerCategory? = nil,
         schedule: [Weekday] = [],
         emoji: String? = nil,
-        color: UIColor? = nil
+        color: UIColor? = nil,
+        isPinned: Bool = false
     )
     {
         self.name = name
@@ -20,6 +22,7 @@ struct TrackerSettings {
         self.schedule = schedule
         self.emoji = emoji
         self.color = color
+        self.isPinned = isPinned
     }
     
     var isComplete: Bool {
@@ -45,7 +48,8 @@ struct TrackerSettings {
             color: color,
             emoji: emoji,
             schedule: schedule,
-            category: category
+            category: category,
+            isPinned: isPinned
         )
     }
 }
@@ -56,7 +60,8 @@ extension TrackerSettings {
                         category: category,
                         schedule: schedule,
                         emoji: emoji,
-                        color: color)
+                        color: color,
+                        isPinned: isPinned)
     }
     
     func withCategory(_ category: TrackerCategory) -> TrackerSettings {
@@ -64,7 +69,8 @@ extension TrackerSettings {
                         category: category,
                         schedule: schedule,
                         emoji: emoji,
-                        color: color)
+                        color: color,
+                        isPinned: isPinned)
     }
     
     func withSchedule(_ schedule: [Weekday]) -> TrackerSettings {
@@ -72,7 +78,8 @@ extension TrackerSettings {
                         category: category,
                         schedule: schedule,
                         emoji: emoji,
-                        color: color)
+                        color: color,
+                        isPinned: isPinned)
     }
     
     func withEmoji(_ emoji: String) -> TrackerSettings {
@@ -80,7 +87,8 @@ extension TrackerSettings {
                         category: category,
                         schedule: schedule,
                         emoji: emoji,
-                        color: color)
+                        color: color,
+                        isPinned: isPinned)
     }
     
     func withColor(_ color: UIColor) -> TrackerSettings {
@@ -88,7 +96,8 @@ extension TrackerSettings {
                         category: category,
                         schedule: schedule,
                         emoji: emoji,
-                        color: color)
+                        color: color,
+                        isPinned: isPinned)
     }
     
     func withRandomColorAndEmoji() -> TrackerSettings {
@@ -97,7 +106,8 @@ extension TrackerSettings {
             category: category,
             schedule: schedule,
             emoji: TrackerConstants.availableEmojis.randomElement() ?? "😪",
-            color: TrackerConstants.availableColors.randomElement() ?? .systemGreen
+            color: TrackerConstants.availableColors.randomElement() ?? .systemGreen,
+            isPinned: isPinned
         )
     }
 }

@@ -36,6 +36,7 @@ final class TrackerStore: NSObject {
         object.name = tracker.name
         object.emoji = tracker.emoji
         object.color = tracker.color.hexString
+        object.isPinned = tracker.isPinned
         if !tracker.schedule.isEmpty {
             object.schedule = try? JSONEncoder().encode(tracker.schedule.map { $0.rawValue })
         } else {
@@ -45,6 +46,24 @@ final class TrackerStore: NSObject {
             object.category = categoryObject
         }
         save()
+    }
+    
+    func update(_ tracker: Tracker) {
+        if let object = fetchTracker(by: tracker.id) {
+            object.name = tracker.name
+            object.emoji = tracker.emoji
+            object.color = tracker.color.hexString
+            object.isPinned = tracker.isPinned
+            if !tracker.schedule.isEmpty {
+                object.schedule = try? JSONEncoder().encode(tracker.schedule.map { $0.rawValue })
+            } else {
+                object.schedule = nil
+            }
+            if let categoryObject = fetchCategory(by: tracker.category.id) {
+                object.category = categoryObject
+            }
+            save()
+        }
     }
     
     func delete(_ tracker: Tracker) {
@@ -105,7 +124,8 @@ extension TrackerCoreData {
             color: color,
             emoji: emoji,
             schedule: scheduleArray,
-            category: category
+            category: category,
+            isPinned: isPinned
         )
     }
 }

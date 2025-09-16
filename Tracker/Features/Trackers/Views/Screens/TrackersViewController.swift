@@ -36,6 +36,7 @@ final class TrackersViewController: UIViewController {
         let searchBar = UISearchBar()
         searchBar.searchBarStyle = .minimal
         searchBar.placeholder = "Поиск"
+        searchBar.delegate = self
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
     }()
@@ -98,6 +99,9 @@ final class TrackersViewController: UIViewController {
         }
         viewModel.onPlaceholderVisibilityChanged = { [weak self] isEmpty in
             self?.updatePlaceholderVisibility(isEmpty: isEmpty)
+        }
+        viewModel.onPlaceholderStateChanged = { [weak self] state in
+            self?.updatePlaceholderState(state)
         }
         viewModel.onDateChanged = { [weak self] date in
             self?.updateDate(to: date)
@@ -171,16 +175,67 @@ final class TrackersViewController: UIViewController {
         viewModel.changeDate(to: sender.date)
     }
     
+    
     // MARK: - Private Methods
     private func handleTrackerAction(at indexPath: IndexPath) {
         let trackerViewModel = categorizedTrackers[indexPath.section].trackers[indexPath.item]
         viewModel.toggleTracker(withId: trackerViewModel.id)
     }
     
+    
+    
+    private func editTracker(_ tracker: Tracker) {
+        let editVC = CreateTrackerViewController()
+        editVC.configureForEditing(tracker: tracker)
+        editVC.onUpdateTracker = { [weak self] updatedTracker in
+            self?.viewModel.updateTracker(updatedTracker)
+        }
+        editVC.modalPresentationStyle = .pageSheet
+        present(editVC, animated: true)
+    }
+    
+    private func deleteTracker(_ tracker: Tracker) {
+        let alert = UIAlertController(
+            title: UIConstants.DeleteAlert.title,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        
+        let deleteAction = UIAlertAction(title: UIConstants.DeleteAlert.delete, style: .destructive) { [weak self] _ in
+            self?.viewModel.deleteTracker(tracker)
+        }
+        
+        let cancelAction = UIAlertAction(title: UIConstants.DeleteAlert.cancel, style: .cancel)
+        
+        alert.addAction(deleteAction)
+        alert.addAction(cancelAction)
+
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        
+        present(alert, animated: true)
+    }
+    
     // MARK: - Public Methods
     func updatePlaceholderVisibility(isEmpty: Bool) {
         placeholderStack.isHidden = !isEmpty
         trackersCollectionView.isHidden = isEmpty
+    }
+    
+    func updatePlaceholderState(_ state: PlaceholderState) {
+        switch state {
+        case .noTrackersForDate:
+            placeholderImage.image = UIImage(named: "PlaceholderImage")
+            placeholderLabel.text = "Что будем отслеживать?"
+        case .searchNotFound:
+            placeholderImage.image = UIImage(named: "error")
+            placeholderLabel.text = "Ничего не найдено"
+        case .hidden:
+            break
+        }
     }
     
     func updateDate(to date: Date) {
@@ -238,6 +293,10 @@ extension TrackersViewController: UICollectionViewDataSource {
         cell.onAction = { [weak self] in
             self?.handleTrackerAction(at: indexPath)
         }
+
+        let contextMenuInteraction = UIContextMenuInteraction(delegate: self)
+        cell.addInteraction(contextMenuInteraction)
+        
         return cell
     }
     
@@ -272,3 +331,70 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         return CGSize(width: collectionView.frame.width, height: 50)
     }
 }
+
+// MARK: - UISearchBarDelegate
+extension TrackersViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        viewModel.applySearch(searchText)
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        return true
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        viewModel.clearSearch()
+    }
+}
+
+// MARK: - UIContextMenuInteractionDelegate
+extension TrackersViewController: UIContextMenuInteractionDelegate {
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        guard let cell = interaction.view as? TrackerCell,
+              let indexPath = trackersCollectionView.indexPath(for: cell),
+              indexPath.section < categorizedTrackers.count,
+              indexPath.item < categorizedTrackers[indexPath.section].trackers.count else {
+            return nil
+        }
+        
+        let trackerViewModel = categorizedTrackers[indexPath.section].trackers[indexPath.item]
+        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            return self?.createContextMenu(for: trackerViewModel.id, at: indexPath)
+        }
+    }
+    
+    private func createContextMenu(for trackerId: UUID, at indexPath: IndexPath) -> UIMenu {
+        guard let tracker = viewModel.allTrackersList.first(where: { $0.id == trackerId }) else {
+            return UIMenu(children: [])
+        }
+        
+        let pinAction = UIAction(
+            title: tracker.isPinned ? UIConstants.ContextMenu.unpin : UIConstants.ContextMenu.pin
+        ) { [weak self] _ in
+            self?.viewModel.togglePin(for: trackerId)
+        }
+        
+        let editAction = UIAction(
+            title: UIConstants.ContextMenu.edit
+        ) { [weak self] _ in
+            self?.editTracker(tracker)
+        }
+        
+        let deleteAction = UIAction(
+            title: UIConstants.ContextMenu.delete,
+            attributes: .destructive
+        ) { [weak self] _ in
+            self?.deleteTracker(tracker)
+        }
+        
+        return UIMenu(children: [pinAction, editAction, deleteAction])
+    }
+}
+

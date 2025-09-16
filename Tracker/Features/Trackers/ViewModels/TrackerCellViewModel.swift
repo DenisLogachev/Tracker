@@ -8,4 +8,5 @@ struct TrackerCellViewModel {
     let completedDays: Int
     let isCompleted: Bool
     let isFuture: Bool
+    let isPinned: Bool
 }
