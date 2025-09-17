@@ -3,10 +3,10 @@ import UIKit
 final class TrackersViewController: UIViewController {
     
     private let viewModel: TrackersViewModel
-    private let trackerService: TrackerService
+    private let trackerService: TrackerServiceProtocol
     
     // MARK: - Init
-    init (viewModel:TrackersViewModel, trackerService:TrackerService) {
+    init (viewModel:TrackersViewModel, trackerService:TrackerServiceProtocol) {
         self.viewModel = viewModel
         self.trackerService = trackerService
         super.init(nibName: nil, bundle: nil)
@@ -174,7 +174,7 @@ final class TrackersViewController: UIViewController {
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 8
         layout.minimumLineSpacing = 16
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 80, right: 0) // Only bottom space for overscroll
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 80, right: 0)
         layout.headerReferenceSize = CGSize(width: 0, height: 32)
         return layout
     }
@@ -280,7 +280,6 @@ final class TrackersViewController: UIViewController {
     }
     
     private func updateFilterButtonVisibility() {
-        // Show filter button only if there are trackers for the selected date
         let hasTrackersForDate = viewModel.allTrackersList.contains { tracker in
             let weekday = Weekday(date: viewModel.selectedDate)
             return tracker.schedule.contains(weekday)

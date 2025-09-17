@@ -1,9 +1,3 @@
-//
-//  TrackerTests.swift
-//  TrackerTests
-//
-//  Created by Denis on 19/06/2025.
-//
 
 import Testing
 @testable import Tracker
