@@ -79,8 +79,21 @@ final class TrackersViewController: UIViewController {
         collectionView.backgroundColor = .clear
         collectionView.register(TrackerCell.self, forCellWithReuseIdentifier: TrackerCell.reuseIdentifier)
         collectionView.register(CategoryHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: CategoryHeaderView.reuseIdentifier)
+        collectionView.alwaysBounceVertical = true
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
+    }()
+    
+    private lazy var filterButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Фильтры", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = UIConstants.Colors.filterButton
+        button.layer.cornerRadius = 16
+        button.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     // MARK: - Lifecycle
@@ -126,7 +139,7 @@ final class TrackersViewController: UIViewController {
     }
     
     private func addSubviews() {
-        [titleLabel, searchField, placeholderStack, trackersCollectionView].forEach {
+        [titleLabel, searchField, placeholderStack, trackersCollectionView, filterButton].forEach {
             view.addSubview($0)
         }
     }
@@ -147,7 +160,12 @@ final class TrackersViewController: UIViewController {
             trackersCollectionView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 16),
             trackersCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             trackersCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            trackersCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            trackersCollectionView.bottomAnchor.constraint(equalTo: filterButton.topAnchor, constant: -16),
+            
+            filterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            filterButton.widthAnchor.constraint(equalToConstant: 114),
+            filterButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -156,7 +174,7 @@ final class TrackersViewController: UIViewController {
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 8
         layout.minimumLineSpacing = 16
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 16, bottom: 16, right: 16)
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 80, right: 0) // Only bottom space for overscroll
         layout.headerReferenceSize = CGSize(width: 0, height: 32)
         return layout
     }
@@ -173,6 +191,13 @@ final class TrackersViewController: UIViewController {
     
     @objc private func dateChanged(_ sender: UIDatePicker) {
         viewModel.changeDate(to: sender.date)
+    }
+    
+    @objc private func filterButtonTapped() {
+        let filterVC = FilterViewController(selectedFilter: viewModel.currentFilterState)
+        filterVC.delegate = self
+        filterVC.modalPresentationStyle = .pageSheet
+        present(filterVC, animated: true)
     }
     
     
@@ -209,7 +234,7 @@ final class TrackersViewController: UIViewController {
         
         alert.addAction(deleteAction)
         alert.addAction(cancelAction)
-
+        
         if let popover = alert.popoverPresentationController {
             popover.sourceView = view
             popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
@@ -233,6 +258,9 @@ final class TrackersViewController: UIViewController {
         case .searchNotFound:
             placeholderImage.image = UIImage(named: "error")
             placeholderLabel.text = "Ничего не найдено"
+        case .filterNotFound:
+            placeholderImage.image = UIImage(named: "error")
+            placeholderLabel.text = "Ничего не найдено"
         case .hidden:
             break
         }
@@ -246,7 +274,18 @@ final class TrackersViewController: UIViewController {
         self.categorizedTrackers = categories
         DispatchQueue.main.async {
             self.trackersCollectionView.reloadData()
+            self.updateFilterButtonVisibility()
+            self.updateFilterButtonAppearance()
         }
+    }
+    
+    private func updateFilterButtonVisibility() {
+        // Show filter button only if there are trackers for the selected date
+        let hasTrackersForDate = viewModel.allTrackersList.contains { tracker in
+            let weekday = Weekday(date: viewModel.selectedDate)
+            return tracker.schedule.contains(weekday)
+        }
+        filterButton.isHidden = !hasTrackersForDate
     }
     
     // MARK: - Factory Methods
@@ -293,7 +332,7 @@ extension TrackersViewController: UICollectionViewDataSource {
         cell.onAction = { [weak self] in
             self?.handleTrackerAction(at: indexPath)
         }
-
+        
         let contextMenuInteraction = UIContextMenuInteraction(delegate: self)
         cell.addInteraction(contextMenuInteraction)
         
@@ -328,7 +367,11 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 50)
+        return CGSize(width: collectionView.frame.width, height: 32)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 0, left: 16, bottom: 16, right: 16)
     }
 }
 
@@ -395,6 +438,20 @@ extension TrackersViewController: UIContextMenuInteractionDelegate {
         }
         
         return UIMenu(children: [pinAction, editAction, deleteAction])
+    }
+}
+
+// MARK: - FilterViewControllerDelegate
+extension TrackersViewController: FilterViewControllerDelegate {
+    func didSelectFilter(_ filter: TrackerFilter) {
+        viewModel.applyFilter(filter)
+        updateFilterButtonAppearance()
+    }
+    
+    private func updateFilterButtonAppearance() {
+        let isFilterActive = viewModel.isFilterActive
+        filterButton.setTitleColor(isFilterActive ? .systemRed : .white, for: .normal)
+        filterButton.backgroundColor = UIConstants.Colors.filterButton
     }
 }
 

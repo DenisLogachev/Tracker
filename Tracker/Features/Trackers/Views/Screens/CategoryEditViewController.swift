@@ -6,7 +6,7 @@ final class CategoryEditViewController: UIViewController, UITableViewDataSource,
         let label = UILabel()
         label.text = "Редактирование категории"
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.textColor = TrackerConstants.Colors.primaryBlack
+        label.textColor = UIConstants.Colors.primaryBlack
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -28,7 +28,7 @@ final class CategoryEditViewController: UIViewController, UITableViewDataSource,
     private lazy var doneButton: UIButton = {
         var config = UIButton.Configuration.filled()
         config.title = "Готово"
-        config.baseBackgroundColor = TrackerConstants.Colors.primaryBlack
+        config.baseBackgroundColor = UIConstants.Colors.primaryBlack
         config.baseForegroundColor = .white
         config.cornerStyle = .medium
         config.contentInsets = NSDirectionalEdgeInsets(top: 19, leading: 32, bottom: 19, trailing: 32)
@@ -45,7 +45,7 @@ final class CategoryEditViewController: UIViewController, UITableViewDataSource,
         let label = UILabel()
         label.text = "Ограничение 38 символов"
         label.font = UIFont.systemFont(ofSize: 17)
-        label.textColor = TrackerConstants.Colors.destructiveAccent
+        label.textColor = UIConstants.Colors.destructiveAccent
         label.textAlignment = .center
         label.isHidden = true
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -134,13 +134,13 @@ final class CategoryEditViewController: UIViewController, UITableViewDataSource,
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NameCell", for: indexPath)
         cell.selectionStyle = .none
-        cell.backgroundColor = TrackerConstants.Colors.background
+        cell.backgroundColor = UIConstants.Colors.background
         
         if nameTextField == nil {
             let tf = UITextField()
             tf.translatesAutoresizingMaskIntoConstraints = false
             tf.font = UIFont.systemFont(ofSize: 17)
-            tf.textColor = TrackerConstants.Colors.primaryBlack
+            tf.textColor = UIConstants.Colors.primaryBlack
             tf.delegate = self
             tf.placeholder = "Название категории"
             cell.contentView.addSubview(tf)

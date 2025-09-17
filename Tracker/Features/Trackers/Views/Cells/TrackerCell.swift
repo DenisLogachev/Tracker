@@ -50,7 +50,7 @@ final class TrackerCell: UICollectionViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = UIConstants.Layout.cellCornerRadius
         view.layer.borderWidth = 1
-        view.layer.borderColor = TrackerConstants.Colors.secondaryGray.withAlphaComponent(0.3).cgColor
+        view.layer.borderColor = UIConstants.Colors.secondaryGray.withAlphaComponent(0.3).cgColor
         view.clipsToBounds = true
         return view
     }()

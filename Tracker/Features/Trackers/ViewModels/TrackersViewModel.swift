@@ -3,6 +3,7 @@ import UIKit
 enum PlaceholderState {
     case noTrackersForDate
     case searchNotFound
+    case filterNotFound
     case hidden
 }
 
@@ -18,19 +19,26 @@ final class TrackersViewModel {
     private var allTrackers: [Tracker] = []
     private var trackerIndex: [UUID: Int] = [:]
     private var searchText: String = ""
+    private var currentFilter: TrackerFilter = .all
     private var visibleCategories: [TrackerCategoryViewModel] = []
     private let trackerService: TrackerServiceProtocol
     private var searchWorkItem: DispatchWorkItem?
     
+    // MARK: - Caching
+    private var cachedFilteredTrackers: [TrackerCellViewModel]?
+    private var lastFilterState: (date: Date, search: String, filter: TrackerFilter)?
+    
     // MARK: - Init
     init(trackerService: TrackerServiceProtocol) {
         self.trackerService = trackerService
+        loadFilterState()
     }
     
     // MARK: - Public API
     func load() {
         allTrackers = trackerService.fetchAllTrackers()
         rebuildTrackerIndex()
+        clearCache()
         filterTrackers(for: currentDate)
     }
     
@@ -50,6 +58,7 @@ final class TrackersViewModel {
             trackerService.addRecord(for: tracker, on: currentDate)
         }
         
+        clearCache()
         filterTrackers(for: currentDate)
     }
     
@@ -114,6 +123,19 @@ final class TrackersViewModel {
         updateVisibleCategories()
     }
     
+    func applyFilter(_ filter: TrackerFilter) {
+        currentFilter = filter
+        saveFilterState()
+        
+        if filter == .today {
+            let today = Date()
+            onDateChanged?(today)
+            currentDate = today
+        }
+        
+        updateVisibleCategories()
+    }
+    
     // MARK: - Public Getters
     var allTrackersList: [Tracker] {
         return allTrackers
@@ -123,6 +145,18 @@ final class TrackersViewModel {
         return visibleCategories
     }
     
+    var currentFilterState: TrackerFilter {
+        return currentFilter
+    }
+    
+    var isFilterActive: Bool {
+        return currentFilter != .all && currentFilter != .today
+    }
+    
+    var selectedDate: Date {
+        return currentDate
+    }
+    
     // MARK: - Helpers
     private func filterTrackers(for date: Date) {
         currentDate = date
@@ -130,6 +164,17 @@ final class TrackersViewModel {
     }
     
     private func updateVisibleCategories() {
+        let currentState = (date: currentDate, search: searchText, filter: currentFilter)
+        if let lastState = lastFilterState,
+           lastState.date == currentState.date,
+           lastState.search == currentState.search,
+           lastState.filter == currentState.filter,
+           let cached = cachedFilteredTrackers {
+            visibleCategories = groupTrackersByCategory(cached)
+            updatePlaceholderState()
+            return
+        }
+        
         let weekday = Weekday(date: currentDate)
         let searchLowercased = searchText.lowercased()
         
@@ -156,12 +201,22 @@ final class TrackersViewModel {
             )
         }
         
-        visibleCategories = groupTrackersByCategory(trackerViewModels)
+        let finalTrackerViewModels = applyFilterLogic(to: trackerViewModels)
         
+        cachedFilteredTrackers = finalTrackerViewModels
+        lastFilterState = currentState
+        
+        visibleCategories = groupTrackersByCategory(finalTrackerViewModels)
+        updatePlaceholderState()
+    }
+    
+    private func updatePlaceholderState() {
         let placeholderState: PlaceholderState
         if visibleCategories.isEmpty {
             if !searchText.isEmpty {
                 placeholderState = .searchNotFound
+            } else if isFilterActive {
+                placeholderState = .filterNotFound
             } else {
                 placeholderState = .noTrackersForDate
             }
@@ -172,6 +227,17 @@ final class TrackersViewModel {
         onCategorizedTrackersChanged?(visibleCategories)
         onPlaceholderVisibilityChanged?(visibleCategories.isEmpty)
         onPlaceholderStateChanged?(placeholderState)
+    }
+    
+    private func applyFilterLogic(to trackers: [TrackerCellViewModel]) -> [TrackerCellViewModel] {
+        switch currentFilter {
+        case .all, .today:
+            return trackers
+        case .completed:
+            return trackers.filter { $0.isCompleted }
+        case .uncompleted:
+            return trackers.filter { !$0.isCompleted }
+        }
     }
     
     private func groupTrackersByCategory(_ trackers: [TrackerCellViewModel]) -> [TrackerCategoryViewModel] {
@@ -229,5 +295,22 @@ final class TrackersViewModel {
             category: tracker.category,
             isPinned: isPinned
         )
+    }
+    
+    // MARK: - Filter State Persistence
+    private func saveFilterState() {
+        UserDefaults.standard.set(currentFilter.rawValue, forKey: "SelectedTrackerFilter")
+    }
+    
+    private func loadFilterState() {
+        if let savedFilterRawValue = UserDefaults.standard.string(forKey: "SelectedTrackerFilter"),
+           let savedFilter = TrackerFilter(rawValue: savedFilterRawValue) {
+            currentFilter = savedFilter
+        }
+    }
+    
+    private func clearCache() {
+        cachedFilteredTrackers = nil
+        lastFilterState = nil
     }
 }

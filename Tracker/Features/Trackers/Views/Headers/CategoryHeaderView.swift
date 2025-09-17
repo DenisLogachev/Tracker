@@ -6,7 +6,7 @@ final class CategoryHeaderView: UICollectionReusableView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
-        label.textColor = TrackerConstants.Colors.primaryBlack
+        label.textColor = UIConstants.Colors.primaryBlack
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -30,8 +30,7 @@ final class CategoryHeaderView: UICollectionReusableView {
         addSubview(titleLabel)
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
-            titleLabel.topAnchor.constraint(equalTo: topAnchor),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
+            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }
 }

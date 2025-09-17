@@ -6,7 +6,7 @@ final class CategoryListViewController: UIViewController {
         let label = UILabel()
         label.text = "Категория"
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.textColor = TrackerConstants.Colors.primaryBlack
+        label.textColor = UIConstants.Colors.primaryBlack
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -28,7 +28,7 @@ final class CategoryListViewController: UIViewController {
     private lazy var doneButton: UIButton = {
         var config = UIButton.Configuration.filled()
         config.title = "Добавить категорию"
-        config.baseBackgroundColor = TrackerConstants.Colors.primaryBlack
+        config.baseBackgroundColor = UIConstants.Colors.primaryBlack
         config.baseForegroundColor = .white
         config.cornerStyle = .medium
         config.contentInsets = NSDirectionalEdgeInsets(top: 19, leading: 32, bottom: 19, trailing: 32)
