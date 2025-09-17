@@ -40,10 +40,12 @@ enum UIConstants {
     // MARK: - Colors
     enum Colors {
         static let primaryBlack = UIColor(named: "PrimaryBlack") ?? .black
-        static let background = UIColor(named: "BackgroundColor") ?? .systemBackground
+        static let primaryWhite = UIColor(named: "PrimaryWhite") ?? .white
+        static let background = UIColor(named: "BackgroundColor") ?? .tertiarySystemBackground
         static let destructiveAccent = UIColor(named: "DestructiveAccent") ?? .systemRed
         static let secondaryGray = UIColor(named: "SecondaryGray") ?? .systemGray
-        static let filterButton = UIColor(named: "FilterButtonColor") ?? .systemBlue
+        static let accentColor = UIColor(named: "AccentColor") ?? .systemBlue
+        static let screenBackground = UIColor(named: "ScreenBackground") ?? .systemBackground
     }
     
     // MARK: - Images

@@ -29,7 +29,7 @@ final class CategoryEditViewController: UIViewController, UITableViewDataSource,
         var config = UIButton.Configuration.filled()
         config.title = "Готово"
         config.baseBackgroundColor = UIConstants.Colors.primaryBlack
-        config.baseForegroundColor = .white
+        config.baseForegroundColor = UIConstants.Colors.primaryWhite
         config.cornerStyle = .medium
         config.contentInsets = NSDirectionalEdgeInsets(top: 19, leading: 32, bottom: 19, trailing: 32)
         let button = UIButton(configuration: config)
@@ -72,7 +72,7 @@ final class CategoryEditViewController: UIViewController, UITableViewDataSource,
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = UIConstants.Colors.screenBackground
         setupUI()
         bind()
         setupKeyboardDismissGesture()

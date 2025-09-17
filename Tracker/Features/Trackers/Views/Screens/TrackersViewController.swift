@@ -45,7 +45,7 @@ final class TrackersViewController: UIViewController {
         makeLabel(
             text: "Трекеры",
             font: UIFont.systemFont(ofSize: 34, weight: .bold),
-            textColor: UIColor(named: "PrimaryText")
+            textColor: UIConstants.Colors.primaryBlack
         )
     }()
     
@@ -57,7 +57,7 @@ final class TrackersViewController: UIViewController {
         makeLabel(
             text: "Что будем отслеживать?",
             font: UIFont.systemFont(ofSize: 12, weight: .medium),
-            textColor: UIColor(named: "PrimaryText"),
+            textColor: UIConstants.Colors.primaryBlack,
             alignment: .center
         )
     }()
@@ -88,8 +88,8 @@ final class TrackersViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Фильтры", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = UIConstants.Colors.filterButton
+        button.setTitleColor(UIConstants.Colors.primaryWhite, for: .normal)
+        button.backgroundColor = UIConstants.Colors.accentColor
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -129,11 +129,11 @@ final class TrackersViewController: UIViewController {
             action: #selector(plusButtonTapped)
         )
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
-        navigationController?.navigationBar.tintColor = .black
+        navigationController?.navigationBar.tintColor = UIConstants.Colors.primaryBlack
     }
     
     private func configureUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = UIConstants.Colors.screenBackground
         addSubviews()
         setupConstraints()
     }
@@ -174,7 +174,7 @@ final class TrackersViewController: UIViewController {
         layout.scrollDirection = .vertical
         layout.minimumInteritemSpacing = 8
         layout.minimumLineSpacing = 16
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 80, right: 0)
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 80, right: 0) // Only bottom space for overscroll
         layout.headerReferenceSize = CGSize(width: 0, height: 32)
         return layout
     }
@@ -280,6 +280,7 @@ final class TrackersViewController: UIViewController {
     }
     
     private func updateFilterButtonVisibility() {
+        // Show filter button only if there are trackers for the selected date
         let hasTrackersForDate = viewModel.allTrackersList.contains { tracker in
             let weekday = Weekday(date: viewModel.selectedDate)
             return tracker.schedule.contains(weekday)
@@ -302,7 +303,7 @@ final class TrackersViewController: UIViewController {
         let imageView = UIImageView()
         imageView.image = UIImage(named: named)
         imageView.contentMode = .scaleAspectFit
-        imageView.tintColor = .gray
+        imageView.tintColor = UIConstants.Colors.secondaryGray
         imageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             imageView.widthAnchor.constraint(equalToConstant: size.width),
@@ -449,8 +450,8 @@ extension TrackersViewController: FilterViewControllerDelegate {
     
     private func updateFilterButtonAppearance() {
         let isFilterActive = viewModel.isFilterActive
-        filterButton.setTitleColor(isFilterActive ? .systemRed : .white, for: .normal)
-        filterButton.backgroundColor = UIConstants.Colors.filterButton
+        filterButton.setTitleColor(isFilterActive ? .systemRed : UIConstants.Colors.primaryWhite, for: .normal)
+        filterButton.backgroundColor = UIConstants.Colors.accentColor
     }
 }
 

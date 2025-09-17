@@ -14,8 +14,8 @@ final class TrackersViewControllerSnapshotTests: XCTestCase {
         let mockService = createMockTrackerService()
         let viewModel = TrackersViewModel(trackerService: mockService)
         let viewController = TrackersViewController(viewModel: viewModel, trackerService: mockService)
-        
         DispatchQueue.main.sync {
+            
             viewController.view.frame = CGRect(x: 0, y: 0, width: 375, height: 812)
             viewController.loadViewIfNeeded()
             viewController.viewDidLoad()
@@ -30,7 +30,10 @@ final class TrackersViewControllerSnapshotTests: XCTestCase {
         let viewModel = TrackersViewModel(trackerService: mockService)
         let viewController = TrackersViewController(viewModel: viewModel, trackerService: mockService)
         
-        assertSnapshots(of: viewController, as: [.image])
+        assertSnapshots(of: viewController, as:[
+            .image(traits: .init(userInterfaceStyle: .light)),
+            .image(traits: .init(userInterfaceStyle: .dark))
+        ])
     }
     
     func testSimpleView() throws {
@@ -44,12 +47,14 @@ final class TrackersViewControllerSnapshotTests: XCTestCase {
         label.textAlignment = .center
         view.addSubview(label)
         
-        assertSnapshots(of: view, as: [.image])
+        assertSnapshots(of: view, as:[
+            .image(traits: .init(userInterfaceStyle: .light)),
+            .image(traits: .init(userInterfaceStyle: .dark))
+        ])
     }
 }
 
 // MARK: - Mock Tracker Service
-
 private class MockTrackerService: TrackerServiceProtocol {
     var mockTrackers: [Tracker] = []
     var mockRecords: [TrackerRecord] = []

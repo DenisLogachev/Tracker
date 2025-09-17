@@ -31,7 +31,17 @@ final class TabBarController: UITabBarController {
     private func configureAppearance() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .white
+        appearance.backgroundColor = UIConstants.Colors.screenBackground
+        
+        appearance.stackedLayoutAppearance.normal.iconColor = UIConstants.Colors.secondaryGray
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+            .foregroundColor: UIConstants.Colors.secondaryGray
+        ]
+        
+        appearance.stackedLayoutAppearance.selected.iconColor = UIConstants.Colors.accentColor
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+            .foregroundColor: UIConstants.Colors.accentColor
+        ]
         
         tabBar.standardAppearance = appearance
         if #available(iOS 15.0, *) {

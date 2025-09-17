@@ -29,7 +29,7 @@ final class CategoryListViewController: UIViewController {
         var config = UIButton.Configuration.filled()
         config.title = "Добавить категорию"
         config.baseBackgroundColor = UIConstants.Colors.primaryBlack
-        config.baseForegroundColor = .white
+        config.baseForegroundColor = UIConstants.Colors.primaryWhite
         config.cornerStyle = .medium
         config.contentInsets = NSDirectionalEdgeInsets(top: 19, leading: 32, bottom: 19, trailing: 32)
         let button = UIButton(configuration: config)
@@ -60,7 +60,7 @@ final class CategoryListViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = UIConstants.Colors.screenBackground
         setupUI()
         
         bindViewModel()
