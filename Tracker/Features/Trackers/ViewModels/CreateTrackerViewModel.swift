@@ -14,11 +14,34 @@ final class CreateTrackerViewModel {
     private(set) var settings: TrackerSettings = TrackerSettings().withRandomColorAndEmoji()
     private(set) var selectedEmojiIndex: IndexPath?
     private(set) var selectedColorIndex: IndexPath?
+    private var editingTrackerId: UUID?
     
     // MARK: - Lifecycle
     func viewDidLoad() {
         let store = TrackerCategoryStore(useFRC: false)
         settings = settings.withCategory(store.ensureDefaultCategory())
+        publishAll()
+    }
+    
+    func configureForEditing(tracker: Tracker) {
+        editingTrackerId = tracker.id
+        settings = TrackerSettings(
+            name: tracker.name,
+            category: tracker.category,
+            schedule: tracker.schedule,
+            emoji: tracker.emoji,
+            color: tracker.color,
+            isPinned: tracker.isPinned
+        )
+        
+        if let emojiIndex = TrackerConstants.availableEmojis.firstIndex(of: tracker.emoji) {
+            selectedEmojiIndex = IndexPath(row: emojiIndex, section: 0)
+        }
+        
+        if let colorIndex = TrackerConstants.availableColors.firstIndex(where: { $0.hexString == tracker.color.hexString }) {
+            selectedColorIndex = IndexPath(row: colorIndex, section: 0)
+        }
+        
         publishAll()
     }
     
@@ -82,37 +105,30 @@ final class CreateTrackerViewModel {
         onScheduleSubtitleChanged?(scheduleSubtitle)
         onEmojiSelectionChanged?(selectedEmojiIndex)
         onColorSelectionChanged?(selectedColorIndex)
-        onNameLimitExceededChanged?(settings.name.count > Layout.nameMaxLength)
+        onNameLimitExceededChanged?(settings.name.count > UIConstants.TextLimits.nameMaxLength)
         onSaveEnabledChanged?(isSaveEnabled)
     }
     
     private func publishChanges() {
-        onNameLimitExceededChanged?(settings.name.count > Layout.nameMaxLength)
+        onNameLimitExceededChanged?(settings.name.count > UIConstants.TextLimits.nameMaxLength)
         onSaveEnabledChanged?(isSaveEnabled)
     }
     
     private func buildTracker() -> Tracker? {
         guard !settings.name.isEmpty, !settings.schedule.isEmpty, let category = settings.category else { return nil }
         return Tracker(
-            id: UUID(),
+            id: editingTrackerId ?? UUID(),
             name: settings.name,
-            color: settings.color ?? Defaults.color,
-            emoji: settings.emoji ?? Defaults.emoji,
+            color: settings.color ?? UIConstants.Defaults.color,
+            emoji: settings.emoji ?? UIConstants.Defaults.emoji,
             schedule: settings.schedule,
-            category: category
+            category: category,
+            isPinned: settings.isPinned
         )
     }
 }
 // MARK: - Constants
-private enum Layout {
-    static let nameMaxLength: Int = 38
-}
-
 private enum Texts {
     static let createEveryDay = "Каждый день"
 }
 
-private enum Defaults {
-    static let color: UIColor = .systemGreen
-    static let emoji: String = "😪"
-}

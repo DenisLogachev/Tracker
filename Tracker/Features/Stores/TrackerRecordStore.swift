@@ -56,6 +56,12 @@ final class TrackerRecordStore: NSObject {
         }
         
         save()
+        
+        StatisticsNotificationCenter.shared.notifyTrackerRecordChange(
+            trackerId: tracker.id,
+            date: date,
+            isCompleted: true
+        )
     }
     
     func deleteRecord(for tracker: Tracker, on date: Date) {
@@ -68,6 +74,12 @@ final class TrackerRecordStore: NSObject {
         if let result = try? context.fetch(request).first {
             context.delete(result)
             save()
+            
+            StatisticsNotificationCenter.shared.notifyTrackerRecordChange(
+                trackerId: tracker.id,
+                date: date,
+                isCompleted: false
+            )
         }
     }
     
@@ -78,7 +90,10 @@ final class TrackerRecordStore: NSObject {
     }
     
     private func save() {
-        do { try context.save() }
+        do {
+            try context.save()
+            StatisticsCacheService.shared.clearCache()
+        }
         catch { print("Ошибка save в TrackerRecordStore: \(error)") }
     }
 }

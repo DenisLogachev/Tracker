@@ -27,7 +27,7 @@ final class EmojiCell: UICollectionViewCell {
     
     func configure(with emoji: String, isSelected: Bool) {
         emojiLabel.text = emoji
-        contentView.backgroundColor = isSelected ? TrackerConstants.Colors.background : .clear
+        contentView.backgroundColor = isSelected ? UIConstants.Colors.background : .clear
         contentView.layer.borderWidth = 0
     }
 }

@@ -7,9 +7,9 @@ enum OptionType: String, CaseIterable {
     var title: String {
         switch self {
         case .category:
-            return "Категория"
+            return UIConstants.CategoryManagement.categoryOption
         case .schedule:
-            return "Расписание"
+            return UIConstants.CategoryManagement.scheduleOption
         }
     }
     
@@ -63,7 +63,7 @@ final class TrackerOptionCell: UITableViewCell {
     
     // MARK: - Setup
     private func setup() {
-        backgroundColor = TrackerConstants.Colors.background
+        backgroundColor = UIConstants.Colors.background
         selectionStyle = .none
         
         setupTitleLabel()
@@ -86,7 +86,7 @@ final class TrackerOptionCell: UITableViewCell {
     
     private func setupSubtitleLabel() {
         subtitleLabel.font = UIFont.systemFont(ofSize: 17)
-        subtitleLabel.textColor = TrackerConstants.Colors.secondaryGray
+        subtitleLabel.textColor = UIConstants.Colors.secondaryGray
         subtitleLabel.numberOfLines = 1
         subtitleLabel.isHidden = true
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -94,13 +94,13 @@ final class TrackerOptionCell: UITableViewCell {
     
     private func setupArrowImageView() {
         arrowImageView.image = UIImage(systemName: "chevron.right")
-        arrowImageView.tintColor = TrackerConstants.Colors.secondaryGray
+        arrowImageView.tintColor = UIConstants.Colors.secondaryGray
         arrowImageView.contentMode = .scaleAspectFit
         arrowImageView.translatesAutoresizingMaskIntoConstraints = false
     }
     
     private func setupSeparatorView() {
-        separatorView.backgroundColor = TrackerConstants.Colors.secondaryGray
+        separatorView.backgroundColor = UIConstants.Colors.secondaryGray
         separatorView.translatesAutoresizingMaskIntoConstraints = false
     }
     

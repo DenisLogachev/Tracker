@@ -28,6 +28,14 @@ final class TrackerService: TrackerServiceProtocol {
         trackerStore.add(tracker)
     }
     
+    func updateTracker(_ tracker: Tracker) {
+        trackerStore.update(tracker)
+    }
+    
+    func deleteTracker(_ tracker: Tracker) {
+        trackerStore.delete(tracker)
+    }
+    
     func addRecord(for tracker: Tracker, on date: Date) {
         recordStore.addRecord(for: tracker, on: date)
     }

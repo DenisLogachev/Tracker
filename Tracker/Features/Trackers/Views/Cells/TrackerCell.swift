@@ -32,7 +32,7 @@ final class TrackerCell: UICollectionViewCell {
     private let countLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = TrackerConstants.Colors.primaryBlack
+        label.textColor = UIConstants.Colors.primaryBlack
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -40,7 +40,7 @@ final class TrackerCell: UICollectionViewCell {
     private let actionButton: UIButton = {
         let button = UIButton(type: .system)
         button.tintColor = .white
-        button.layer.cornerRadius = UIConstants.actionButtonSize / 2
+        button.layer.cornerRadius = 17
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -48,9 +48,9 @@ final class TrackerCell: UICollectionViewCell {
     private let cardView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.cornerRadius = UIConstants.cardCornerRadius
+        view.layer.cornerRadius = UIConstants.Layout.cellCornerRadius
         view.layer.borderWidth = 1
-        view.layer.borderColor = TrackerConstants.Colors.secondaryGray.withAlphaComponent(0.3).cgColor
+        view.layer.borderColor = UIConstants.Colors.secondaryGray.withAlphaComponent(0.3).cgColor
         view.clipsToBounds = true
         return view
     }()
@@ -59,6 +59,16 @@ final class TrackerCell: UICollectionViewCell {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
+    }()
+    
+    private let pinImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: UIConstants.Images.pinIcon)
+        imageView.tintColor = .white
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.isHidden = true
+        return imageView
     }()
     
     // MARK: - Callback
@@ -82,6 +92,7 @@ final class TrackerCell: UICollectionViewCell {
         countLabel.text = formattedDayCount(viewModel.completedDays)
         configureActionButton(isCompleted: viewModel.isCompleted, isFuture: viewModel.isFuture, color: viewModel.color)
         cardView.backgroundColor = viewModel.color
+        pinImageView.isHidden = !viewModel.isPinned
     }
     
     func updateActionButton(isCompleted: Bool, isFuture: Bool, color: UIColor) {
@@ -93,7 +104,7 @@ final class TrackerCell: UICollectionViewCell {
     }
     
     private func configureActionButton(isCompleted: Bool, isFuture: Bool, color: UIColor) {
-        let imageName = isCompleted ? "checkmark" : "plus"
+        let imageName = isCompleted ? "checkmark" : UIConstants.Images.plusIcon
         actionButton.setImage(UIImage(systemName: imageName), for: .normal)
         actionButton.backgroundColor = color
         actionButton.alpha = isCompleted ? 0.3 : (isFuture ? 0.5 : 1.0)
@@ -106,12 +117,12 @@ final class TrackerCell: UICollectionViewCell {
         let suffix: String
         
         if rem100 >= 11 && rem100 <= 14 {
-            suffix = "дней"
+            suffix = UIConstants.TrackerCell.daysSuffix[2]
         } else {
             switch rem10 {
-            case 1: suffix = "день"
-            case 2...4: suffix = "дня"
-            default: suffix = "дней"
+            case 1: suffix = UIConstants.TrackerCell.daysSuffix[0]
+            case 2...4: suffix = UIConstants.TrackerCell.daysSuffix[1]
+            default: suffix = UIConstants.TrackerCell.daysSuffix[2]
             }
         }
         return "\(count) \(suffix)"
@@ -126,10 +137,12 @@ final class TrackerCell: UICollectionViewCell {
         cardView.addSubview(emojiBackgroundView)
         emojiBackgroundView.addSubview(emojiLabel)
         cardView.addSubview(nameLabel)
+        cardView.addSubview(pinImageView)
         
         contentView.addSubview(bottomContainerView)
         bottomContainerView.addSubview(countLabel)
         bottomContainerView.addSubview(actionButton)
+        
         
         NSLayoutConstraint.activate([
             // Card View
@@ -141,8 +154,8 @@ final class TrackerCell: UICollectionViewCell {
             // Emoji background
             emojiBackgroundView.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12),
             emojiBackgroundView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
-            emojiBackgroundView.widthAnchor.constraint(equalToConstant: UIConstants.emojiSize),
-            emojiBackgroundView.heightAnchor.constraint(equalToConstant: UIConstants.emojiSize),
+            emojiBackgroundView.widthAnchor.constraint(equalToConstant: UIConstants.Layout.emojiSize),
+            emojiBackgroundView.heightAnchor.constraint(equalToConstant: UIConstants.Layout.emojiSize),
             
             // Emoji label
             emojiLabel.centerXAnchor.constraint(equalTo: emojiBackgroundView.centerXAnchor),
@@ -152,6 +165,12 @@ final class TrackerCell: UICollectionViewCell {
             nameLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
             nameLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -12),
             nameLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -12),
+            
+            // Pin image view
+            pinImageView.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12),
+            pinImageView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -12),
+            pinImageView.widthAnchor.constraint(equalToConstant: 12),
+            pinImageView.heightAnchor.constraint(equalToConstant: 12),
             
             // Bottom container
             bottomContainerView.topAnchor.constraint(equalTo: cardView.bottomAnchor),
@@ -167,8 +186,8 @@ final class TrackerCell: UICollectionViewCell {
             // Action button
             actionButton.trailingAnchor.constraint(equalTo: bottomContainerView.trailingAnchor, constant: -12),
             actionButton.centerYAnchor.constraint(equalTo: bottomContainerView.centerYAnchor),
-            actionButton.widthAnchor.constraint(equalToConstant: UIConstants.actionButtonSize),
-            actionButton.heightAnchor.constraint(equalToConstant: UIConstants.actionButtonSize)
+            actionButton.widthAnchor.constraint(equalToConstant: UIConstants.Layout.actionButtonSize),
+            actionButton.heightAnchor.constraint(equalToConstant: UIConstants.Layout.actionButtonSize)
         ])
         
         actionButton.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)
@@ -177,13 +196,5 @@ final class TrackerCell: UICollectionViewCell {
     // MARK: - Actions
     @objc private func actionTapped() {
         onAction?()
-    }
-}
-
-private extension TrackerCell {
-    enum UIConstants {
-        static let actionButtonSize: CGFloat = 34
-        static let cardCornerRadius: CGFloat = 16
-        static let emojiSize: CGFloat = 24
     }
 }

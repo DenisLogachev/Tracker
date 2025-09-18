@@ -4,15 +4,7 @@ final class ScheduleViewController: UIViewController {
     
     private let viewModel = ScheduleViewModel()
     
-    private let daysOfWeek = [
-        "Понедельник",
-        "Вторник",
-        "Среда",
-        "Четверг",
-        "Пятница",
-        "Суббота",
-        "Воскресенье"
-    ]
+    private let daysOfWeek = UIConstants.Schedule.weekdays
     
     var selectedWeekdays: Set<Weekday> = []
     var onWeekdaysSelected: ((Set<Weekday>) -> Void)?
@@ -20,9 +12,9 @@ final class ScheduleViewController: UIViewController {
     // MARK: - UI Components
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Расписание"
+        label.text = UIConstants.Schedule.title
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.textColor = TrackerConstants.Colors.primaryBlack
+        label.textColor = UIConstants.Colors.primaryBlack
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -43,9 +35,9 @@ final class ScheduleViewController: UIViewController {
     
     private lazy var doneButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Готово"
-        config.baseBackgroundColor = TrackerConstants.Colors.primaryBlack
-        config.baseForegroundColor = .white
+        config.title = UIConstants.CreateTracker.save
+        config.baseBackgroundColor = UIConstants.Colors.primaryBlack
+        config.baseForegroundColor = UIConstants.Colors.primaryWhite
         config.cornerStyle = .medium
         config.contentInsets = NSDirectionalEdgeInsets(top: 19, leading: 32, bottom: 19, trailing: 32)
         
@@ -61,7 +53,7 @@ final class ScheduleViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor =  .white
+        view.backgroundColor = UIConstants.Colors.screenBackground
         setupUI()
         bindViewModel()
         viewModel.setInitial(selectedWeekdays)

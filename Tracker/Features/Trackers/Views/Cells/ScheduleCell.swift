@@ -31,11 +31,11 @@ final class ScheduleCell: UITableViewCell {
     
     private func setup() {
         selectionStyle = .none
-        backgroundColor = TrackerConstants.Colors.background
+        backgroundColor = UIConstants.Colors.background
         titleLabel.font = UIFont.systemFont(ofSize: Layout.titleFontSize)
-        titleLabel.textColor = TrackerConstants.Colors.primaryBlack
+        titleLabel.textColor = UIConstants.Colors.primaryBlack
         daySwitch.onTintColor = UIColor.systemBlue
-        separatorView.backgroundColor = TrackerConstants.Colors.secondaryGray
+        separatorView.backgroundColor = UIConstants.Colors.secondaryGray
         addSubviews()
         setupConstraints()
     }

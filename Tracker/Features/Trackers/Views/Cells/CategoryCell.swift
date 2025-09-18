@@ -6,7 +6,7 @@ final class CategoryCell: UITableViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: Layout.titleFontSize)
-        label.textColor = TrackerConstants.Colors.primaryBlack
+        label.textColor = UIConstants.Colors.primaryBlack
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -22,7 +22,7 @@ final class CategoryCell: UITableViewCell {
     
     private let separatorView: UIView = {
         let v = UIView()
-        v.backgroundColor = TrackerConstants.Colors.secondaryGray
+        v.backgroundColor = UIConstants.Colors.secondaryGray
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
     }()
@@ -30,7 +30,7 @@ final class CategoryCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
-        backgroundColor = TrackerConstants.Colors.background
+        backgroundColor = UIConstants.Colors.background
         setup()
     }
     
