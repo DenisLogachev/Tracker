@@ -55,7 +55,7 @@ final class CategoryListViewModel {
     // MARK: - Data
     func reload() {
         let allCategories = store.fetchAll()
-        categories = allCategories.filter { $0.title != "Закрепленные" }
+        categories = allCategories.filter { $0.title != UIConstants.DefaultCategories.pinned }
     }
     
     // MARK: - Mutations

@@ -4,7 +4,7 @@ final class CategoryListViewController: UIViewController {
     // MARK: - UI
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Категория"
+        label.text = UIConstants.CategoryManagement.categoryTitle
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIConstants.Colors.primaryBlack
         label.textAlignment = .center
@@ -27,7 +27,7 @@ final class CategoryListViewController: UIViewController {
     
     private lazy var doneButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Добавить категорию"
+        config.title = UIConstants.CategoryManagement.addCategory
         config.baseBackgroundColor = UIConstants.Colors.primaryBlack
         config.baseForegroundColor = UIConstants.Colors.primaryWhite
         config.cornerStyle = .medium
@@ -122,11 +122,11 @@ final class CategoryListViewController: UIViewController {
     }
     
     private func confirmDelete(category: TrackerCategory) {
-        let sheet = UIAlertController(title: "Эта категория точно не нужна?", message: nil, preferredStyle: .actionSheet)
-        let delete = UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+        let sheet = UIAlertController(title: UIConstants.CategoryManagement.deleteCategoryTitle, message: nil, preferredStyle: .actionSheet)
+        let delete = UIAlertAction(title: UIConstants.DeleteAlert.delete, style: .destructive) { [weak self] _ in
             self?.viewModel.deleteCategory(id: category.id)
         }
-        let cancel = UIAlertAction(title: "Отменить", style: .cancel)
+        let cancel = UIAlertAction(title: UIConstants.DeleteAlert.cancel, style: .cancel)
         sheet.addAction(delete)
         sheet.addAction(cancel)
         if let popover = sheet.popoverPresentationController {
@@ -144,10 +144,10 @@ extension CategoryListViewController {
         let category = viewModel.categories[indexPath.row]
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
             guard let self = self else { return nil }
-            let edit = UIAction(title: "Редактировать") { _ in
+            let edit = UIAction(title: UIConstants.ContextMenu.edit) { _ in
                 self.presentRename(for: category)
             }
-            let delete = UIAction(title: "Удалить", attributes: .destructive) { _ in
+            let delete = UIAction(title: UIConstants.ContextMenu.delete, attributes: .destructive) { _ in
                 self.confirmDelete(category: category)
             }
             if category.title == TrackerConstants.Strings.importantCategoryTitle {

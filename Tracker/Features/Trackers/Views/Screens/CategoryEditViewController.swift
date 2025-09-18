@@ -4,7 +4,7 @@ final class CategoryEditViewController: UIViewController, UITableViewDataSource,
     // MARK: - UI
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Редактирование категории"
+        label.text = UIConstants.CategoryManagement.editCategory
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIConstants.Colors.primaryBlack
         label.textAlignment = .center
@@ -27,7 +27,7 @@ final class CategoryEditViewController: UIViewController, UITableViewDataSource,
     
     private lazy var doneButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Готово"
+        config.title = UIConstants.CreateTracker.save
         config.baseBackgroundColor = UIConstants.Colors.primaryBlack
         config.baseForegroundColor = UIConstants.Colors.primaryWhite
         config.cornerStyle = .medium
@@ -43,7 +43,7 @@ final class CategoryEditViewController: UIViewController, UITableViewDataSource,
     
     private let charLimitLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ограничение 38 символов"
+        label.text = UIConstants.CategoryManagement.categoryNameLimit
         label.font = UIFont.systemFont(ofSize: 17)
         label.textColor = UIConstants.Colors.destructiveAccent
         label.textAlignment = .center
@@ -142,7 +142,7 @@ final class CategoryEditViewController: UIViewController, UITableViewDataSource,
             tf.font = UIFont.systemFont(ofSize: 17)
             tf.textColor = UIConstants.Colors.primaryBlack
             tf.delegate = self
-            tf.placeholder = "Название категории"
+            tf.placeholder = UIConstants.CategoryManagement.categoryNamePlaceholder
             cell.contentView.addSubview(tf)
             NSLayoutConstraint.activate([
                 tf.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 16),
@@ -159,12 +159,12 @@ final class CategoryEditViewController: UIViewController, UITableViewDataSource,
     // MARK: - UITextField
     @objc private func textChanged(_ textField: UITextField) {
         let raw = textField.text ?? ""
-        let limited = String(raw.prefix(Layout.nameMaxLength))
+        let limited = String(raw.prefix(UIConstants.TextLimits.nameMaxLength))
         if raw != limited {
             textField.text = limited
         }
         viewModel.updateName(limited)
-        charLimitLabel.isHidden = limited.count <= Layout.nameMaxLength
+        charLimitLabel.isHidden = limited.count <= UIConstants.TextLimits.nameMaxLength
     }
     
     // MARK: - UITextFieldDelegate
@@ -185,10 +185,5 @@ final class CategoryEditViewController: UIViewController, UITableViewDataSource,
     }
 }
 
-private extension CategoryEditViewController {
-    enum Layout {
-        static let nameMaxLength: Int = 38
-    }
-}
 
 

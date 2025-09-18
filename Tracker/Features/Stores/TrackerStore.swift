@@ -91,6 +91,7 @@ final class TrackerStore: NSObject {
         guard context.hasChanges else { return }
         do {
             try context.save()
+            StatisticsCacheService.shared.clearCache()
         } catch {
             print("Ошибка save в TrackerStore: \(error)")
         }

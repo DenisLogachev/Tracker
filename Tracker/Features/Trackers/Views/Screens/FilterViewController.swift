@@ -12,7 +12,7 @@ final class FilterViewController: UIViewController {
     // MARK: - UI Components
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Фильтры"
+        label.text = UIConstants.Filters.title
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = UIConstants.Colors.primaryBlack
         label.textAlignment = .center

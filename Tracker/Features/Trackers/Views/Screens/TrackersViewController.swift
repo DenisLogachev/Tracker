@@ -35,7 +35,7 @@ final class TrackersViewController: UIViewController {
     private lazy var searchField: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.searchBarStyle = .minimal
-        searchBar.placeholder = "Поиск"
+        searchBar.placeholder = UIConstants.MainScreen.searchPlaceholder
         searchBar.delegate = self
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
@@ -43,19 +43,19 @@ final class TrackersViewController: UIViewController {
     
     private lazy var titleLabel: UILabel = {
         makeLabel(
-            text: "Трекеры",
+            text: UIConstants.MainScreen.title,
             font: UIFont.systemFont(ofSize: 34, weight: .bold),
             textColor: UIConstants.Colors.primaryBlack
         )
     }()
     
     private lazy var placeholderImage: UIImageView = {
-        makeImageView(named: "PlaceholderImage", size: CGSize(width: 80, height: 80))
+        makeImageView(named: UIConstants.Images.placeholder, size: CGSize(width: 80, height: 80))
     }()
     
     private lazy var placeholderLabel: UILabel = {
         makeLabel(
-            text: "Что будем отслеживать?",
+            text: UIConstants.MainScreen.emptyStateTitle,
             font: UIFont.systemFont(ofSize: 12, weight: .medium),
             textColor: UIConstants.Colors.primaryBlack,
             alignment: .center
@@ -86,7 +86,7 @@ final class TrackersViewController: UIViewController {
     
     private lazy var filterButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Фильтры", for: .normal)
+        button.setTitle(UIConstants.MainScreen.filtersButton, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         button.setTitleColor(UIConstants.Colors.primaryWhite, for: .normal)
         button.backgroundColor = UIConstants.Colors.accentColor
@@ -103,6 +103,16 @@ final class TrackersViewController: UIViewController {
         setupNavigationBar()
         configureUI()
         viewModel.load()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AnalyticsService.shared.reportScreenOpen(AnalyticsService.Screen.main.rawValue)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        AnalyticsService.shared.reportScreenClose(AnalyticsService.Screen.main.rawValue)
     }
     
     // MARK: - Setup
@@ -123,7 +133,7 @@ final class TrackersViewController: UIViewController {
     
     private func setupNavigationBar() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "plus"),
+            image: UIImage(systemName: UIConstants.Images.plusIcon),
             style: .plain,
             target: self,
             action: #selector(plusButtonTapped)
@@ -181,6 +191,11 @@ final class TrackersViewController: UIViewController {
     
     // MARK: - Actions
     @objc private func plusButtonTapped() {
+        AnalyticsService.shared.reportClick(
+            AnalyticsService.Item.addTrack.rawValue,
+            screen: AnalyticsService.Screen.main.rawValue
+        )
+        
         let creationVC = CreateTrackerViewController()
         creationVC.onCreateTracker = { [weak self] tracker in
             self?.viewModel.addTracker(tracker)
@@ -194,6 +209,11 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func filterButtonTapped() {
+        AnalyticsService.shared.reportClick(
+            AnalyticsService.Item.filter.rawValue,
+            screen: AnalyticsService.Screen.main.rawValue
+        )
+        
         let filterVC = FilterViewController(selectedFilter: viewModel.currentFilterState)
         filterVC.delegate = self
         filterVC.modalPresentationStyle = .pageSheet
@@ -203,6 +223,11 @@ final class TrackersViewController: UIViewController {
     
     // MARK: - Private Methods
     private func handleTrackerAction(at indexPath: IndexPath) {
+        AnalyticsService.shared.reportClick(
+            AnalyticsService.Item.track.rawValue,
+            screen: AnalyticsService.Screen.main.rawValue
+        )
+        
         let trackerViewModel = categorizedTrackers[indexPath.section].trackers[indexPath.item]
         viewModel.toggleTracker(withId: trackerViewModel.id)
     }
@@ -210,6 +235,11 @@ final class TrackersViewController: UIViewController {
     
     
     private func editTracker(_ tracker: Tracker) {
+        AnalyticsService.shared.reportClick(
+            AnalyticsService.Item.edit.rawValue,
+            screen: AnalyticsService.Screen.main.rawValue
+        )
+        
         let editVC = CreateTrackerViewController()
         editVC.configureForEditing(tracker: tracker)
         editVC.onUpdateTracker = { [weak self] updatedTracker in
@@ -220,6 +250,11 @@ final class TrackersViewController: UIViewController {
     }
     
     private func deleteTracker(_ tracker: Tracker) {
+        AnalyticsService.shared.reportClick(
+            AnalyticsService.Item.delete.rawValue,
+            screen: AnalyticsService.Screen.main.rawValue
+        )
+        
         let alert = UIAlertController(
             title: UIConstants.DeleteAlert.title,
             message: nil,
@@ -253,14 +288,14 @@ final class TrackersViewController: UIViewController {
     func updatePlaceholderState(_ state: PlaceholderState) {
         switch state {
         case .noTrackersForDate:
-            placeholderImage.image = UIImage(named: "PlaceholderImage")
-            placeholderLabel.text = "Что будем отслеживать?"
+            placeholderImage.image = UIImage(named: UIConstants.Images.placeholder)
+            placeholderLabel.text = UIConstants.MainScreen.emptyStateTitle
         case .searchNotFound:
-            placeholderImage.image = UIImage(named: "error")
-            placeholderLabel.text = "Ничего не найдено"
+            placeholderImage.image = UIImage(named: UIConstants.Images.searchPlaceholder)
+            placeholderLabel.text = UIConstants.MainScreen.searchNotFound
         case .filterNotFound:
-            placeholderImage.image = UIImage(named: "error")
-            placeholderLabel.text = "Ничего не найдено"
+            placeholderImage.image = UIImage(named: UIConstants.Images.searchPlaceholder)
+            placeholderLabel.text = UIConstants.MainScreen.filterNotFound
         case .hidden:
             break
         }

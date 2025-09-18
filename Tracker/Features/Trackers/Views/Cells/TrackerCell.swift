@@ -104,7 +104,7 @@ final class TrackerCell: UICollectionViewCell {
     }
     
     private func configureActionButton(isCompleted: Bool, isFuture: Bool, color: UIColor) {
-        let imageName = isCompleted ? "checkmark" : "plus"
+        let imageName = isCompleted ? "checkmark" : UIConstants.Images.plusIcon
         actionButton.setImage(UIImage(systemName: imageName), for: .normal)
         actionButton.backgroundColor = color
         actionButton.alpha = isCompleted ? 0.3 : (isFuture ? 0.5 : 1.0)
@@ -117,12 +117,12 @@ final class TrackerCell: UICollectionViewCell {
         let suffix: String
         
         if rem100 >= 11 && rem100 <= 14 {
-            suffix = "дней"
+            suffix = UIConstants.TrackerCell.daysSuffix[2]
         } else {
             switch rem10 {
-            case 1: suffix = "день"
-            case 2...4: suffix = "дня"
-            default: suffix = "дней"
+            case 1: suffix = UIConstants.TrackerCell.daysSuffix[0]
+            case 2...4: suffix = UIConstants.TrackerCell.daysSuffix[1]
+            default: suffix = UIConstants.TrackerCell.daysSuffix[2]
             }
         }
         return "\(count) \(suffix)"

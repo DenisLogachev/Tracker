@@ -101,12 +101,12 @@ extension OnboardingPageViewController {
         let samplePages: [OnboardingPage] = [
             OnboardingPage(
                 image: UIImage(resource: .onboarding1),
-                titleText: "Отслеживайте только то, что хотите",
+                titleText: UIConstants.Onboarding.firstPageTitle,
                 showsActionButton: true,
-                actionTitle: "Вот это технологии!"),
+                actionTitle: UIConstants.Onboarding.actionButton),
             OnboardingPage(image: UIImage(resource: .onboarding2),
-                           titleText: "Даже если это не литры воды и йога",
-                           showsActionButton: true, actionTitle: "Вот это технологии!")
+                           titleText: UIConstants.Onboarding.secondPageTitle,
+                           showsActionButton: true, actionTitle: UIConstants.Onboarding.actionButton)
         ]
         return OnboardingPageViewController(pages: samplePages)
     }

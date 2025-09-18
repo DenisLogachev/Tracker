@@ -262,7 +262,7 @@ final class TrackersViewModel {
         var result: [TrackerCategoryViewModel] = []
         
         if !pinnedTrackers.isEmpty {
-            result.append(TrackerCategoryViewModel(title: "Закрепленные", trackers: pinnedTrackers))
+            result.append(TrackerCategoryViewModel(title: UIConstants.DefaultCategories.pinned, trackers: pinnedTrackers))
         }
         
         let otherCategories = categoryDict.map { TrackerCategoryViewModel(title: $0.key, trackers: $0.value) }

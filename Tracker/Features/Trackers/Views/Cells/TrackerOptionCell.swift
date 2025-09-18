@@ -7,9 +7,9 @@ enum OptionType: String, CaseIterable {
     var title: String {
         switch self {
         case .category:
-            return "Категория"
+            return UIConstants.CategoryManagement.categoryOption
         case .schedule:
-            return "Расписание"
+            return UIConstants.CategoryManagement.scheduleOption
         }
     }
     
